@@ -5,8 +5,12 @@ description = "MCP Suite - A Python package for managing MCP services"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "atproto>=0.0.59",
     "cookiecutter>=2.6.0",
     "hatchling>=1.27.0",
+    "mcp>=1.3.0",
+    "pytest-asyncio>=0.25.3",
+    "python-dotenv>=1.0.1",
 ]
 
 [project.optional-dependencies]
