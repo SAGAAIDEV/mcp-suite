@@ -2,7 +2,7 @@
 
 # mypy: ignore-errors
 
-from mcp_suite.launch import main
+from src.mcp_suite.launch import main
 
 
 def test_main() -> None:

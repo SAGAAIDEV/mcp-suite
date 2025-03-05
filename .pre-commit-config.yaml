@@ -3,7 +3,7 @@ repos:
     hooks:
       - id: pytest-check
         name: pytest-check
-        entry: bash -c 'cd $(git rev-parse --show-toplevel) && PYTHONPATH=$(git rev-parse --show-toplevel) uv run pytest src/tests/ --cov=src.mcp_suite --cov-report=term-missing -v'
+        entry: bash -c 'cd $(git rev-parse --show-toplevel) && PYTHONPATH=$(git rev-parse --show-toplevel) uv run pytest src/tests/ --cov=src.mcp_suite --cov-report=term-missing --cov-fail-under=100 -v'
         language: system
         pass_filenames: false
         always_run: true
