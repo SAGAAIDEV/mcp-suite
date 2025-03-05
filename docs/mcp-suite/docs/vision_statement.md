@@ -19,7 +19,8 @@ MCP Suite operates as a lightweight system tray application that:
 - Enables one-click activation/deactivation of individual servers
 - Simplifies authentication workflows through a unified interface
 - Manages the underlying Docker infrastructure transparently
-- Delivers notifications about important events and status changes
+- provides a cookie cutter template to expand the mcp suite
+- Copies mcp.json to specified directory of enabled MCP servers.
 
 ### 2. Diverse MCP Server Collection
 
@@ -32,6 +33,7 @@ MCP Suite provides a growing library of pre-configured MCP servers for popular s
 
 #### Organizational Tools
 - **Productivity Tools**: Google Workspace, Microsoft Office, Atlassian Suite
+- **Talent Database**: Upwork, Custom, Athena
 
 #### Finacial Tools
 - **Financial Tools**: Bitcoin, Lightning Network, TapRoot Assets
@@ -40,7 +42,11 @@ MCP Suite provides a growing library of pre-configured MCP servers for popular s
 - **Development Tools**: Jira, Log Reader, Git, Debugger
 - **Cloud Services**: AWS, GCP, Azure
 - **Communication Platforms**: Slack, Discord, Email services
-- **Knowledge Bases**: Notion, Confluence, Wikipedia
+- **Knowledge Bases**: Notion, Confluence, Wikipedia, Google, Travily
+
+
+#### Logistic Tools
+- ** Location Tools**: Google maps, Google places
 
 Each MCP server is designed to expose the most useful functionality of its target service through a consistent, LLM-friendly interface.
 
@@ -93,10 +99,16 @@ MCP Suite includes specialized wrappers that extend the functionality of standar
   - Export results in various formats (CSV, Excel, etc.)
   - Generate visualizations from structured data
 
-- **Chaining Wrapper**: Combine multiple tools into seamless workflows
-  - Pass output from one tool as input to another
+- **Rule Builder**: Create workflows from chat
+  - Capture the chat process of working with multiple tools
   - Create complex multi-step processes
-  - Handle conditional logic between tool executions
+  - Capture reasoning and conditional logic between tool executions
+
+### 7. Agent Builder
+
+MCP Tool that builds MCP Tools from Rules:
+
+This creates agents that use only the tools specified in the rules file.
 
 These wrappers enable more sophisticated use cases without requiring changes to the underlying tool implementations.
 
