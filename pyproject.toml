@@ -54,3 +54,8 @@ disallow_untyped_defs = true
 disallow_incomplete_defs = true
 namespace_packages = true
 explicit_package_bases = true
+
+[dependency-groups]
+dev = [
+    "autoflake>=2.3.1",
+]
