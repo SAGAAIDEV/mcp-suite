@@ -1,5 +1,6 @@
 """Tests for the BlueskyService class."""
 
+import os
 from unittest import mock
 
 import pytest
@@ -9,6 +10,17 @@ from src.mcp_suite.servers.bluesky_mcp_server.model.credentials import (
     BlueskyCredentials,
 )
 from src.mcp_suite.servers.bluesky_mcp_server.model.service import BlueskyService
+
+
+@pytest.fixture
+def mock_empty_env_vars():
+    """Mock empty environment variables for testing."""
+    with mock.patch.dict(
+        os.environ,
+        {},
+        clear=True,  # This clears all environment variables
+    ):
+        yield
 
 
 @pytest.fixture
@@ -69,11 +81,16 @@ def test_authenticate():
         mock_login.assert_called_once_with("user@example.com", "secret")
 
 
-def test_authenticate_invalid_credentials():
+def test_authenticate_invalid_credentials(mock_empty_env_vars):
     """Test authenticate with invalid credentials."""
-    credentials = BlueskyCredentials()  # Empty credentials
+    # Create empty credentials and bypass the automatic authentication in __init__
+    credentials = BlueskyCredentials()
 
-    service = BlueskyService(credentials)
+    # Create service with authentication disabled
+    with mock.patch.object(BlueskyCredentials, "are_valid", return_value=False):
+        service = BlueskyService(credentials)
+
+    # Now test the authenticate method directly
     with pytest.raises(ValueError, match="Credentials are not valid"):
         service.authenticate()
 

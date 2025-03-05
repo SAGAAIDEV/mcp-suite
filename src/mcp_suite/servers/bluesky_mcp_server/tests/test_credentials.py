@@ -20,6 +20,17 @@ def mock_env_vars():
         yield
 
 
+@pytest.fixture
+def mock_empty_env_vars():
+    """Mock empty environment variables for testing."""
+    with mock.patch.dict(
+        os.environ,
+        {},
+        clear=True,  # This clears all environment variables
+    ):
+        yield
+
+
 def test_credentials_init():
     """Test that credentials can be initialized directly."""
     credentials = BlueskyCredentials(email="user@example.com", password="secret")
@@ -28,7 +39,7 @@ def test_credentials_init():
     assert credentials.are_valid() is True
 
 
-def test_credentials_empty():
+def test_credentials_empty(mock_empty_env_vars):
     """Test that empty credentials are not valid."""
     credentials = BlueskyCredentials()
     assert credentials.email is None
