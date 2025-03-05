@@ -2,7 +2,7 @@
 
 ## Overview
 
-MCP Suite is a comprehensive collection of Model Context Protocol (MCP) servers designed to empower AI agents with seamless access to a wide range of external services and APIs. By providing a standardized interface for LLMs to interact with various tools and platforms, MCP Suite bridges the gap between AI capabilities and real-world applications.
+MCP Suite is a comprehensive system tray application that manages a collection of Model Context Protocol (MCP) servers, designed to empower AI agents with seamless access to a wide range of external services and APIs. By providing a standardized interface for LLMs to interact with various tools and platforms, MCP Suite bridges the gap between AI capabilities and real-world applications.
 
 ## Core Vision
 
@@ -10,14 +10,25 @@ Our vision is to create an ecosystem where AI agents can effortlessly extend the
 
 ## Key Components
 
-### 1. Diverse MCP Server Collection
+### 1. System Tray Application
+
+MCP Suite operates as a lightweight system tray application that:
+
+- Provides at-a-glance status of all enabled MCP servers
+- Offers easy access to configuration and management interfaces
+- Enables one-click activation/deactivation of individual servers
+- Simplifies authentication workflows through a unified interface
+- Manages the underlying Docker infrastructure transparently
+- Delivers notifications about important events and status changes
+
+### 2. Diverse MCP Server Collection
 
 MCP Suite provides a growing library of pre-configured MCP servers for popular services and platforms, including:
 
 #### Narative and Communication Tools
 - **Creative Tools**: Midjourney, DALL-E, Stable Diffusion
-- **Social Media**: Twitter, LinkedIn, Instagram, BLueSky, TickTok
-- **Media Creation**: GStreamer
+- **Social Media**: Twitter, LinkedIn, Instagram, BlueSky, TickTok, Youtube
+- **Media Creation**: GStreamer, HeyGen
 
 #### Organizational Tools
 - **Productivity Tools**: Google Workspace, Microsoft Office, Atlassian Suite
@@ -26,15 +37,14 @@ MCP Suite provides a growing library of pre-configured MCP servers for popular s
 - **Financial Tools**: Bitcoin, Lightning Network, TapRoot Assets
 
 #### Development Tools
-- **Development Tools**:  Jira, Log Reader, Git, Debugger
+- **Development Tools**: Jira, Log Reader, Git, Debugger
 - **Cloud Services**: AWS, GCP, Azure
-- **Productivity Tools**: Google Workspace, Microsoft Office, Atlassian Suite
 - **Communication Platforms**: Slack, Discord, Email services
 - **Knowledge Bases**: Notion, Confluence, Wikipedia
 
 Each MCP server is designed to expose the most useful functionality of its target service through a consistent, LLM-friendly interface.
 
-### 2. Stateful Architecture with Redis
+### 3. Stateful Architecture with Redis
 
 At the heart of MCP Suite is a Redis-based state management system that enables:
 
@@ -43,30 +53,32 @@ At the heart of MCP Suite is a Redis-based state management system that enables:
 - Caching of frequently accessed data
 - Cross-server state sharing when appropriate
 - Efficient handling of rate limits and quotas
+- Preservation of context between user sessions
 
-This stateful architecture allows for complex, multi-step workflows that would be impossible with stateless implementations.
+This stateful architecture allows for complex, multi-step workflows that would be impossible with stateless implementations. All MCP servers store their relevant state in Redis, ensuring consistency and persistence across restarts.
 
-### 3. Unified Authentication System
+### 4. Unified Authentication System
 
 MCP Suite features a centralized authentication system that:
 
-- Securely stores API keys and credentials
-- Provides a consistent interface for adding new credentials
+- Securely stores API keys and credentials in Redis
+- Provides a simple, intuitive interface for adding new credentials
 - Supports various authentication methods (API keys, OAuth, etc.)
 - Enables credential sharing between related services when appropriate
 - Implements proper security practices for credential management
+- Offers one-click authentication flows where possible
 
-### 4. Docker-based Deployment
+### 5. Docker-based Deployment
 
 The entire suite is designed for easy deployment through Docker:
 
-- Single docker-compose file to launch the entire ecosystem
+- Single docker-compose file managed by the system tray application
 - Individual containers for each MCP server
 - Centralized Redis container for state management
-- Simple configuration through environment variables
+- Simple configuration through an intuitive GUI
 - Scalable architecture for high-demand scenarios
 
-### 5. Enhanced Tool Wrappers
+### 6. Enhanced Tool Wrappers
 
 MCP Suite includes specialized wrappers that extend the functionality of standard MCP tools:
 
@@ -94,12 +106,12 @@ These wrappers enable more sophisticated use cases without requiring changes to 
 
 Developers can quickly extend their AI applications by:
 
-1. Cloning the MCP Suite repository
-2. Running the Docker setup script
-3. Selecting which MCP servers to enable
-4. Configuring authentication for selected services
-5. Generating MCP JSON definitions for their LLM platform of selected services
-6. Integrating the MCP endpoints with their AI application
+1. Installing the MCP Suite system tray application
+2. Selecting which MCP servers to enable from the intuitive interface
+3. Authenticating with their chosen services through guided workflows
+4. Generating MCP JSON definitions for their LLM platform with a single click
+5. Integrating the MCP endpoints with their AI application
+6. Monitoring server status and usage through the system tray
 
 ### For End Users
 
@@ -141,6 +153,13 @@ End users of AI applications powered by MCP Suite will experience:
 - Update existing integrations without breaking changes
 - Scale from personal use to enterprise deployments
 
+### 5. Simplified Management
+
+- Manage all MCP servers from a single system tray interface
+- One-click authentication for multiple services
+- Visual indicators of server status and health
+- Easy troubleshooting and configuration
+
 ## Guiding Principles
 
 ### 1. Simplicity First
@@ -162,7 +181,8 @@ The suite is designed to grow through community contributions, with clear guidel
 ## Roadmap Highlights
 
 ### Phase 1: Foundation
-- Core infrastructure with Redis state management
+- Core system tray application
+- Redis-based state management infrastructure
 - Docker-based deployment system
 - Initial set of high-value MCP servers
 - Basic authentication management
