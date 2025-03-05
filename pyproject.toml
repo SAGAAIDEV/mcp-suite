@@ -1,0 +1,52 @@
+[project]
+name = "mcp-suite"
+version = "0.1.0"
+description = "MCP Suite - A Python package for managing MCP services"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "cookiecutter>=2.6.0",
+    "hatchling>=1.27.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+    "black",
+    "isort",
+    "flake8",
+    "mypy",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+python_classes = "Test*"
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["tests/*", "**/__main__.py"]
+
+[tool.black]
+line-length = 88
+target-version = ["py313"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+namespace_packages = true
+explicit_package_bases = true

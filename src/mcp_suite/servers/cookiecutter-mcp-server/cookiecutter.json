@@ -1,0 +1,20 @@
+{
+  "project_name": "MCP Server",
+  "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
+  "package_name": "{{ cookiecutter.project_slug }}",
+  "project_short_description": "A Template for mcp servers",
+  "version": "0.1.0",
+  "author_name": "Andrew Melnychuk-Oseen",
+  "author_email": "saaga@saaga.dev",
+  "python_version": "3.13",
+  "use_docker": "no",
+  "use_fastapi": "no",
+  "include_cli": "no",
+  "open_source_license": [
+    "MIT",
+    "BSD-3-Clause",
+    "GNU GPL v3.0",
+    "Apache Software License 2.0",
+    "Not open source"
+  ]
+}
