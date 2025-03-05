@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "bluesky": {
+      "command": "uv",
+      "args": [
+        "--directory=/Users/andrew/saga/mcp-suite",
+        "run",
+        "python",
+        "-m",
+        "src.mcp_suite.servers.bluesky_mcp_server.server.bluesky"
+      ]
+    }
+  }
+}
