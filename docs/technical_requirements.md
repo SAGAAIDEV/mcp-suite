@@ -13,6 +13,9 @@ This document outlines the technical requirements for implementing the MCP Suite
    - Menu and submenu support
    - Notification capabilities
    - Icon state visualization
+   - Direct access to MCP server list from system tray
+   - Status indicators for each MCP server
+   - Navigation to account management for each server
 
 2. **Docker Integration**
    - Docker SDK for Python
@@ -36,6 +39,10 @@ This document outlines the technical requirements for implementing the MCP Suite
    - API key management
    - Token refresh capabilities
    - Credential validation
+   - Support for multiple accounts per service
+   - Account-specific credential fields
+   - Straightforward account viewer interface
+   - Account status indicators
 
 5. **Configuration System**
    - User preferences storage
@@ -43,6 +50,8 @@ This document outlines the technical requirements for implementing the MCP Suite
    - Environment variable handling
    - Configuration file I/O
    - Default configuration templates
+   - Tool availability display
+   - Per-server configuration access
 
 ## MCP Server Requirements
 
@@ -62,6 +71,8 @@ This document outlines the technical requirements for implementing the MCP Suite
    - Documentation generation
    - Version management
    - Dependency resolution
+   - Tool status visibility in UI
+   - Tool categorization and grouping
 
 4. **Authentication Middleware**
    - Request authentication
