@@ -1,7 +1,5 @@
 """Core module for MCP Suite."""
 
-# mypy: ignore-errors
-
 
 def main() -> str:
     """Run the main function.
