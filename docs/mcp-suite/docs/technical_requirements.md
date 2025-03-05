@@ -47,11 +47,7 @@ This document outlines the technical requirements for implementing the MCP Suite
 ## MCP Server Requirements
 
 1. **Server Framework**
-   - FastAPI for API endpoints
-   - Asynchronous request handling
-   - OpenAPI documentation
-   - Request validation
-   - Error handling
+   - FastMCP
 
 2. **Redis Integration**
    - State persistence
@@ -77,7 +73,8 @@ This document outlines the technical requirements for implementing the MCP Suite
 ## Enhanced Tool Wrappers
 
 1. **Scheduler Wrapper**
-   - Task scheduling library
+   - Celery for distributed task management
+   - Flower for task monitoring and administration
    - Cron-like syntax support
    - Persistent job storage
    - Failure recovery
