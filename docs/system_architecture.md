@@ -194,3 +194,103 @@ The architecture supports extensibility through:
 - Dynamic discovery of new services
 - Configuration-driven behavior
 - State persistence for service continuity 
+
+## MCP Tool Decorators
+
+The MCP Suite implements a decorator pattern for enhancing MCP tools with additional capabilities: 
+
+┌─────────────────────────────────────┐
+│ BaseMCPDecorator │
+├─────────────────────────────────────┤
+│ - wrapped_tool: Callable │
+├─────────────────────────────────────┤
+│ + call(args, kwargs) │
+│ + pre_execution_hook() │
+│ + post_execution_hook() │
+│ + error_handling_hook() │
+└─────────────────────────────────────┘
+
+### Core Decorators
+
+#### 1. Scheduler Decorator
+
+The `@scheduler` decorator enables MCP tools to be scheduled for execution:
+
+┌─────────────────────────────────────┐
+│ SchedulerDecorator │
+├─────────────────────────────────────┤
+│ - celery_app: Celery │
+│ - schedule_options: Dict │
+├─────────────────────────────────────┤
+│ + schedule(cron_expr, args, kw) │
+│ + cancel_scheduled(task_id) │
+│ + list_scheduled_tasks() │
+│ + modify_schedule(task_id, new_expr)│
+└─────────────────────────────────────┘
+
+
+### Core Decorators
+
+These decorators mutate the functions signature, doc string giving the tool extra arguments and capabilities.
+
+#### 1. Scheduler Decorator
+
+The `@scheduler` decorator enables MCP tools to be scheduled for execution:
+┌─────────────────────────────────────┐
+│ SchedulerDecorator │
+├─────────────────────────────────────┤
+│ - celery_app: Celery │
+│ - schedule_options: Dict │
+├─────────────────────────────────────┤
+│ + schedule(cron_expr, args, kw) │
+│ + cancel_scheduled(task_id) │
+│ + list_scheduled_tasks() │
+│ + modify_schedule(task_id, new_expr)│
+└─────────────────────────────────────┘
+
+#### 2. DataFrame Decorator
+
+The `@dataframe` decorator provides MCP tools with capabilities to read from and write to dataframes:
+┌─────────────────────────────────────┐
+│ DataFrameDecorator │
+├─────────────────────────────────────┤
+│ - supported_formats: List[str] │
+│ - default_format: str │
+├─────────────────────────────────────┤
+│ + read_df(source, format=None) │
+│ + write_df(df, target, format=None) │
+│ + transform_df(df, transform_func) │
+│ + get_schema(df) │
+└─────────────────────────────────────┘
+
+
+#### 3. Logger Decorator
+
+The `@logger` decorator automatically logs MCP tool execution details using loguru:
+
+┌─────────────────────────────────────┐
+│ LoggerDecorator │
+├─────────────────────────────────────┤
+│ - log_level: str │
+│ - log_format: str │
+│ - log_file: str │
+├─────────────────────────────────────┤
+│ + configure_logger(config: Dict) │
+│ + log_execution(status, details) │
+│ + get_execution_history() │
+└─────────────────────────────────────┘
+
+### Decorator Composition
+
+MCP tool decorators can be composed to provide multiple capabilities:
+
+```python
+@mcp.tool()
+@scheduler
+@dataframe
+@logger(level="DEBUG")
+def etl_process(source_path, target_path):
+    # Implementation combining scheduling, dataframe operations, and logging
+    pass
+```
+
