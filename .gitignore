@@ -1,3 +1,6 @@
 *.pyc
 .coverage
 .env
+logs/
+db/
+.coverage*

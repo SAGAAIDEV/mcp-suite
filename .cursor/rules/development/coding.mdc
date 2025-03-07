@@ -1,0 +1,22 @@
+---
+description: when implementing a feature
+globs: 
+alwaysApply: false
+---
+Read the documentation of any library you are using.
+
+Implement one feature
+
+Test it
+
+Run the Tests
+
+Fix errors
+
+Run the Tests
+
+Fix the warnings
+
+Run Coverage
+
+Run Pre commit hook

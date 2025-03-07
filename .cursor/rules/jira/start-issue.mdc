@@ -74,4 +74,9 @@ When a trigger phrase is detected:
 
 User: "Let's start MT-107"
 
+When starting a new issue with @start-issue.mdc:
+1. Create a branch: git checkout -b feature/[ISSUE-ID]-description
+2. Publish the branch: git push -u origin feature/[ISSUE-ID]-description
+3. Only then proceed with implementation
+
 

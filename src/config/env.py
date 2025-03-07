@@ -165,6 +165,7 @@ CONFLUENCE = Confluence()
 
 class Redis(BaseSettings):
     URL: str = "redis://localhost:6379/0"
+    DB: str = "mcp"
 
     model_config = ConfigDict(
         env_file=".env",

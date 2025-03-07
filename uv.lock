@@ -1074,6 +1074,7 @@ source = { editable = "." }
 dependencies = [
     { name = "assemblyai" },
     { name = "atproto" },
+    { name = "autoflake" },
     { name = "cookiecutter" },
     { name = "hatchling" },
     { name = "ipykernel" },
@@ -1112,6 +1113,7 @@ dev = [
 requires-dist = [
     { name = "assemblyai", specifier = ">=0.37.0" },
     { name = "atproto", specifier = ">=0.0.59" },
+    { name = "autoflake", specifier = ">=2.3.1" },
     { name = "black", marker = "extra == 'dev'" },
     { name = "cookiecutter", specifier = ">=2.6.0" },
     { name = "flake8", marker = "extra == 'dev'" },
