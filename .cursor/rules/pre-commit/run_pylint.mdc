@@ -1,0 +1,64 @@
+---
+description: Instructions for pylint
+globs: 
+alwaysApply: false
+---
+# Run Pylint
+
+This rule helps you run pylint on specific modules or files in the project.
+
+## Glob Pattern
+```
+src/services/mcp/**/*.py
+```
+
+## Rule
+When working on Python files in the MCP services, you can run pylint on the specific file or module you're working on.
+
+### Running pylint on a specific file
+To run pylint on the current file you're working on:
+
+```bash
+PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pylint <file_path>
+```
+
+For example:
+```bash
+PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pylint src/services/mcp/scheduler/start.py
+```
+
+### Running pylint on a module
+To run pylint on an entire module:
+
+```bash
+PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pylint src/services/mcp/scheduler
+```
+
+### Customizing pylint output
+You can customize the pylint output format:
+
+```bash
+PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pylint --output-format=colorized src/services/mcp/scheduler
+```
+
+### Ignoring specific errors
+To ignore specific pylint errors:
+
+```bash
+PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pylint --disable=C0111,C0103 src/services/mcp/scheduler
+```
+
+Common disable options:
+- C0111: Missing docstring
+- C0103: Invalid name
+- W0511: TODO comments
+- R0903: Too few public methods
+
+### Generating a pylintrc file
+If you want to create a pylintrc file for consistent configuration:
+
+```bash
+PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pylint --generate-rcfile > .pylintrc
+```
+
+Remember to address one file at a time when running pylint to keep the output manageable and focused on the code you're currently working on.

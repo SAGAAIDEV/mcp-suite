@@ -1,0 +1,95 @@
+---
+description: Rule for closing a jira
+globs: 
+alwaysApply: false
+---
+# Closing a Jira Issue
+
+The project key is MT
+
+## Trigger Words and Phrases
+
+When the user uses any of the following phrases, interpret it as a request to close a Jira issue:
+
+- "Let's close issue MT-<xxx>"
+- "I want to close MT-<xxx>"
+- "Let's finish ticket MT <xxx>"
+- "Complete MT<xxx>"
+- "Let's wrap up MT<xxx>"
+- "Time to close MT-<xxx>"
+- "Let's mark MT <xxx> as done"
+- "I need to close issue MT <xxx>"
+- "Can we close <xxx>"
+- "Let's merge MT<xxx>"
+- <xxx>
+
+where <xxx> is the issue number.
+If you are unsure of the issue number, get it from the current branch with a command.
+```bash
+git branch --show-current
+```
+
+## Process for Closing an Issue
+
+When a trigger phrase is detected:
+
+1. **Check for uncommitted changes** first:
+   ```bash
+   git status --porcelain
+   ```
+   If there are uncommitted changes, warn the user and suggest they commit or stash their changes before proceeding.
+
+2. **Use the Jira MCP tool get_issue** to fetch the issue details.
+
+3. Display the issue information so the user can review what they'll be closing.
+
+4. **Identify the target feature branch** to merge into. This is typically the branch the user was on before starting the issue.
+   ```bash
+   git branch -a | cat
+   ```
+   Look for feature branches like `feat/...` or `feature/...`.
+
+5. **Switch to the target feature branch**:
+   ```bash
+   git checkout <target-feature-branch>
+   ```
+
+6. **Attempt a fast-forward merge** of the issue branch:
+   ```bash
+   git merge --ff-only <issue-branch>
+   ```
+   
+7. **If fast-forward merge fails**, inform the user and offer options:
+   - Try a regular merge: `git merge --no-ff <issue-branch>`
+   - Rebase the issue branch: 
+     ```bash
+     git checkout <issue-branch>
+     git rebase <target-feature-branch>
+     git checkout <target-feature-branch>
+     git merge --ff-only <issue-branch>
+     ```
+
+8. **Push the changes to the remote repository**:
+   ```bash
+   git push
+   ```
+
+9. **Use the Jira MCP tool transition_issue** to transition the issue to "Done".
+
+10. **Clean up** by deleting the local and remote issue branch (optional, ask user first)  :
+    ```bash
+    git branch -d <issue-branch> && git push origin --delete <issue-branch> | cat
+    ```
+
+## Important Notes
+
+- ONLY use the command line for Git operations (switching branches, merging)
+- ONLY use the MCP Jira tools for interacting with Jira (fetching issue details, updating status)
+- Always check for uncommitted changes before switching branches
+- Prefer fast-forward merges when possible to maintain a clean history
+- Always push changes after merging to keep the remote repository updated
+- Always use the MT project code for issues
+
+## Example Complete Workflow
+
+User: "Let's close MT-113" 

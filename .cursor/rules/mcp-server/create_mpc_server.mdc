@@ -1,0 +1,48 @@
+---
+description: Create a mpc server
+globs: 
+alwaysApply: false
+---
+# How to Create an MCP Server
+This guide will walk you through creating a custom MCP (Multi-Agent Communication Protocol) server based on the FastMCP framework.
+Table of Contents
+Overview
+Project Structure
+Step-by-Step Implementation
+Testing Your MCP Server
+Best Practices
+Overview
+An MCP server is a service that exposes tools via the Multi-Agent Communication Protocol. These tools can be called by client applications to perform specific tasks. MCP servers are designed for easy integration with LLM-based applications.
+Key components of an MCP server:
+FastMCP Server: The core server object that handles communication
+Tools: Functions decorated with @mcp.tool that provide functionality
+Service Layer: Handles business logic and external API integration
+Utilities: Helper functions for common tasks
+Configuration: Settings and constants for the service
+
+### Project Structure
+A typical MCP server project follows this structure:
+your_service/
+├── __init__.py
+├── README.md
+├── config/
+│   ├── __init__.py
+│   └── config.py
+├── service/
+│   ├── __init__.py
+│   └── your_service.py
+├── servers/
+│   ├── __init__.py
+│   └── your_server.py
+├── utils/
+│   ├── __init__.py
+│   └── util_functions.py
+└── tests/
+    ├── __init__.py
+    ├── conftest.py
+    └── test_your_server.py
+
+1. Set Up Your Project Structure
+Create the folder structure as shown above using cookie cutter.
+
+

@@ -1,0 +1,77 @@
+---
+description: Instructions for handling requests to start working on a Jira issue
+globs: 
+alwaysApply: false
+---
+
+# Starting a Jira Issue
+
+The project key is MT
+
+## Trigger Words and Phrases
+
+When the user uses any of the following phrases, interpret it as a request to start working on a Jira issue:
+
+- "Let's start issue MT-<xxx>"
+- "I want to work on MT-<xxx>"
+- "Let's begin ticket MT <xxx>"
+- "Start working on MT<xxx>"
+- "Let's pick up MT<xxx>"
+- "Time to tackle MT-<xxx>"
+- "Let's get started with MT <xxx>"
+- "I need to start issue MT <xxx>"
+- "Can we start on <xxx>"
+- <xxx>
+
+
+where <xxx> is the issue number.
+
+## Process for Starting an Issue
+
+When a trigger phrase is detected:
+
+1. **Check for uncommitted changes** first:
+   ```bash
+   git status --porcelain
+   ```
+   If there are uncommitted changes, warn the user and stop the process. The user should commit or stash their changes before starting a new issue.
+
+2. **Use the Jira MCP tool get_issue** to fetch the issue details.
+
+3. Display the issue information so the user can review what they'll be working on.
+
+4. **Use the command line** to create a branch based on the issue key:
+   ```bash
+   git checkout -b MT-<xxx>-descriptive-branch-name
+   ```
+   The branch name should follow the pattern: `{ISSUE-KEY}-{descriptive-name-with-hyphens}`
+   Do NOT checkout main and pull. Branch from the current branch.
+
+5. **Use the Jira MCP tool transition_issue** to transition the issue to "In Progress".
+
+6. **Push the new branch to the remote repository**:
+   ```bash
+   git push -u origin <branch-name>
+   ```
+   This ensures the branch is published to the remote repository and sets up tracking.
+
+7. **Verify branch publication**:
+   ```bash
+   git branch -vv
+   ```
+   This confirms the branch is properly tracking its remote counterpart.
+
+
+## Important Notes
+
+- ONLY use the command line for Git operations (creating branches)
+- ONLY use the MCP Jira tools for interacting with Jira (fetching issue details, updating status)
+- Always check for uncommitted changes before creating a new branch
+- Always check out from main and pull the latest changes before creating a new branch
+- Always use the MT project code for issues
+
+## Example Complete Workflow
+
+User: "Let's start MT-107"
+
+

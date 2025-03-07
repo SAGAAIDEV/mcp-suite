@@ -1,0 +1,44 @@
+---
+description: Create a reusable template for MCP (Model Context Protocol) servers using Cookiecutter to enable developers and AI assistants to quickly scaffold new MCP-compatible projects.
+globs: 
+alwaysApply: false
+---
+Objective
+Create a reusable template for MCP (Model Context Protocol) servers using Cookiecutter to enable developers and AI assistants to quickly scaffold new MCP-compatible projects.
+Background
+As part of our MCP research and planning initiatives, we need standardized templates to accelerate development of MCP-compatible servers. Using Cookiecutter will provide a consistent approach to project generation while maintaining flexibility.
+Tasks
+
+2. *Design the template structure*:
+ - Set up the cookiecutter directory hierarchy
+ - Create template files for server.py, models.py, etc.
+ - Configure pyproject.toml with appropriate dependencies
+3. *Define the cookiecutter.json* with template variables:
+ - project_name
+ - project_slug
+ - author_name
+ - description
+4. *Add unit tests* to verify template generation works correctly
+5. *Document the template usage* in the README.md
+6. *Push the completed template* to GitHub
+Template Structure
+{{}}{{
+mcp-server-template/
+├── cookiecutter.project_slug/
+│   ├── *init*.py
+│   ├── server.py  # Example MCP server
+│   ├── models.py  # MCP message structure
+├── tests/
+├── pyproject.toml
+├── README.md
+├── cookiecutter.json
+{{}}{{
+Acceptance Criteria
+GitHub repository exists and is publicly accessible
+Template successfully generates new projects with correct structure
+README provides clear instructions for usage
+Developers can create new MCP server projects with a single cookiecutter command
+Template includes sufficient starter code to demonstrate MCP protocol implementation
+Resources
+[Confluence Page: Plan: Creating an MCP Server Template with Cookiecutter in GitHub](https://codingthefuturewithai.atlassian.net/wiki/spaces/ACT/pages/19628086)
+[Cookiecutter Documentation](https://cookiecutter.readthedocs.io/)

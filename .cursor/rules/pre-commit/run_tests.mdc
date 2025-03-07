@@ -1,0 +1,149 @@
+---
+description: Run Py tests
+globs: 
+alwaysApply: false
+---
+# Test Workflow Rule
+
+## Running Tests
+
+When asked to run tests or fix failing tests, follow this workflow:
+
+1. **Run all tests first** to identify failing tests:
+   ```bash
+   PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pytest <test_path> -v | grep " FAILED"
+   ```
+   Ignore keyboard interupt warnings
+
+2. **Add coverage** to see what parts of the code are not covered:
+   ```bash
+   PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pytest <test_path> --cov=<module_path> --cov-report=term-missing -v
+   ```
+
+3. **Focus on one failing test at a time**:
+   ```bash
+   PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pytest <test_path>::<test_name> -v
+   ```
+
+## Fixing Tests
+
+When fixing tests:
+
+1. **NEVER modify production code** to make tests pass
+   - If there appears to be an error in the production code, notify the user but still fix the test to match the actual behavior
+   - Only suggest production code changes after tests are passing
+
+2. **Read the test and related production code** to understand what's being tested
+
+3. **Make minimal changes** to the test code to make it pass
+   - Update assertions to match actual behavior
+   - Fix test setup/teardown if needed
+   - Correct test inputs/outputs to match expected behavior
+
+4. **Run the specific test** after making changes to verify it passes
+
+5. **Notify when a test is fixed** and explain what was changed and why
+
+6. **Stage and commit changes** after each test fix:
+   ```bash
+   git add <modified_files>
+   git commit -m "Fix test_<test_name>: <brief description of what was fixed>"
+   ```
+   - Use descriptive commit messages that explain what was fixed
+   - Include the test name in the commit message
+   - Keep each commit focused on a single test fix
+
+## Achieving 100% Coverage
+
+After all tests are passing:
+
+1. **Identify uncovered code** using the coverage report
+
+2. **Add new tests** for uncovered code paths
+   - Focus on one uncovered section at a time
+   - Write minimal tests that exercise the uncovered code
+
+3. **NEVER use `# pragma: no cover`** to artificially increase coverage, use it on '__main__' blocks 
+
+4. **Run coverage report** after adding each new test to verify improvement
+
+5. **Continue until 100% coverage** is achieved
+
+## Fixing Coverage File by File
+
+When improving test coverage systematically:
+
+1. **Generate a detailed coverage report** to identify files with missing coverage:
+   ```bash
+   PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pytest --cov=<module_path> --cov-report=term-missing -v
+   ```
+
+2. **Focus on one file at a time**, starting with the least covered files:
+   ```bash
+   PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pytest --cov=<module_path>.<specific_file> --cov-report=term-missing -v
+   ```
+
+3. **Identify specific uncovered lines** in the current target file:
+   - Look for line numbers in the coverage report
+   - Understand what conditions or code paths are not being tested
+
+4. **Find existing tests** for the target file:
+   ```bash
+   find tests/ -type f -name "test_*<target_file>*.py"
+   ```
+
+5. **For each set of uncovered lines**:
+   - Identify what functionality those lines represent
+   - Find or create a test that would exercise those lines
+   - Focus on one set of related uncovered lines at a time
+
+6. **If an existing test can be modified**:
+   - Add test cases that exercise the uncovered lines
+   - Run the test to verify it increases coverage
+   ```bash
+   PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pytest <test_file>::<test_name> --cov=<module_path>.<specific_file> -v
+   ```
+
+7. **If a new test is needed**:
+   - Create a new test function targeting the uncovered functionality
+   - Name it clearly to indicate what aspect it's testing
+   - Run the new test to verify it increases coverage
+   ```bash
+   PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pytest <new_test_file>::<new_test_name> --cov=<module_path>.<specific_file> -v
+   ```
+
+8. **For conditional branches**:
+   - Create test cases for each branch (if/else, try/except, etc.)
+   - Ensure all conditions are tested (boundary values, edge cases)
+
+9. **For error handling code**:
+   - Create tests that trigger exceptions
+   - Use pytest fixtures or mocks to simulate error conditions
+
+10. **Verify coverage improvement** after each change:
+    - Run coverage on the specific file
+    - Confirm the previously uncovered lines are now covered
+
+11. **Move to the next set of uncovered lines** in the same file until file reaches 100%
+
+12. **Commit changes** after each set of lines is covered:
+    ```bash
+    git add <modified_files>
+    git commit -m "Improve coverage for <file_name>: Cover <functionality>"
+    ```
+
+13. **Move to the next file** once current file reaches 100% coverage
+
+## Committing Changes
+
+After fixing each test:
+
+1. **Run the test again** to confirm it passes
+
+2. **Commit the changes** with a descriptive message:
+   ```bash
+   git add <modified_files>
+   git commit -m "Fix <test_name>: <brief description of the fix>"
+   ```
+
+3. **Move on to the next failing test**
