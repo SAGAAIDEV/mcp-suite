@@ -1,6 +1,6 @@
 # MCP Suite - System Architecture
 
-This document outlines the system architecture for the MCP Suite, describing how the various components interact and function together.
+This document outlines the system architecture for the MCP Suite, describing how the various components interact and function together. This architecture implements the requirements specified in the [Technical Requirements](technical_requirements.md) document.
 
 ## Overview
 
@@ -197,88 +197,78 @@ The architecture supports extensibility through:
 
 ## MCP Tool Decorators
 
-The MCP Suite implements a decorator pattern for enhancing MCP tools with additional capabilities: 
+The MCP Suite implements a decorator pattern for enhancing MCP tools with additional capabilities:
 
+```
 ┌─────────────────────────────────────┐
-│ BaseMCPDecorator │
+│           BaseMCPDecorator          │
 ├─────────────────────────────────────┤
-│ - wrapped_tool: Callable │
+│ - wrapped_tool: Callable            │
 ├─────────────────────────────────────┤
-│ + call(args, kwargs) │
-│ + pre_execution_hook() │
-│ + post_execution_hook() │
-│ + error_handling_hook() │
+│ + call(args, kwargs)                │
+│ + pre_execution_hook()              │
+│ + post_execution_hook()             │
+│ + error_handling_hook()             │
 └─────────────────────────────────────┘
+```
 
 ### Core Decorators
+
+These decorators mutate the function's signature and docstring, giving the tool extra arguments and capabilities.
 
 #### 1. Scheduler Decorator
 
 The `@scheduler` decorator enables MCP tools to be scheduled for execution:
 
+```
 ┌─────────────────────────────────────┐
-│ SchedulerDecorator │
+│           SchedulerDecorator        │
 ├─────────────────────────────────────┤
-│ - celery_app: Celery │
-│ - schedule_options: Dict │
+│ - celery_app: Celery                │
+│ - schedule_options: Dict            │
 ├─────────────────────────────────────┤
-│ + schedule(cron_expr, args, kw) │
-│ + cancel_scheduled(task_id) │
-│ + list_scheduled_tasks() │
+│ + schedule(cron_expr, args, kw)     │
+│ + cancel_scheduled(task_id)         │
+│ + list_scheduled_tasks()            │
 │ + modify_schedule(task_id, new_expr)│
 └─────────────────────────────────────┘
-
-
-### Core Decorators
-
-These decorators mutate the functions signature, doc string giving the tool extra arguments and capabilities.
-
-#### 1. Scheduler Decorator
-
-The `@scheduler` decorator enables MCP tools to be scheduled for execution:
-┌─────────────────────────────────────┐
-│ SchedulerDecorator │
-├─────────────────────────────────────┤
-│ - celery_app: Celery │
-│ - schedule_options: Dict │
-├─────────────────────────────────────┤
-│ + schedule(cron_expr, args, kw) │
-│ + cancel_scheduled(task_id) │
-│ + list_scheduled_tasks() │
-│ + modify_schedule(task_id, new_expr)│
-└─────────────────────────────────────┘
+```
 
 #### 2. DataFrame Decorator
 
 The `@dataframe` decorator provides MCP tools with capabilities to read from and write to dataframes:
-┌─────────────────────────────────────┐
-│ DataFrameDecorator │
-├─────────────────────────────────────┤
-│ - supported_formats: List[str] │
-│ - default_format: str │
-├─────────────────────────────────────┤
-│ + read_df(source, format=None) │
-│ + write_df(df, target, format=None) │
-│ + transform_df(df, transform_func) │
-│ + get_schema(df) │
-└─────────────────────────────────────┘
 
+```
+┌─────────────────────────────────────┐
+│           DataFrameDecorator        │
+├─────────────────────────────────────┤
+│ - supported_formats: List[str]      │
+│ - default_format: str               │
+├─────────────────────────────────────┤
+│ + read_df(source, format=None)      │
+│ + write_df(df, target, format=None) │
+│ + transform_df(df, transform_func)  │
+│ + get_schema(df)                    │
+└─────────────────────────────────────┘
+```
 
 #### 3. Logger Decorator
 
 The `@logger` decorator automatically logs MCP tool execution details using loguru:
 
+```
 ┌─────────────────────────────────────┐
-│ LoggerDecorator │
+│           LoggerDecorator           │
 ├─────────────────────────────────────┤
-│ - log_level: str │
-│ - log_format: str │
-│ - log_file: str │
+│ - log_level: str                    │
+│ - log_format: str                   │
+│ - log_file: str                     │
 ├─────────────────────────────────────┤
-│ + configure_logger(config: Dict) │
-│ + log_execution(status, details) │
-│ + get_execution_history() │
+│ + configure_logger(config: Dict)    │
+│ + log_execution(status, details)    │
+│ + get_execution_history()           │
 └─────────────────────────────────────┘
+```
 
 ### Decorator Composition
 
@@ -293,4 +283,8 @@ def etl_process(source_path, target_path):
     # Implementation combining scheduling, dataframe operations, and logging
     pass
 ```
+
+## Integration with Other Components
+
+The architecture described in this document is implemented using the technologies specified in the [Technology Stack](technology_stack.md) document and follows the development plan outlined in the [Sprint Development Plan](sprint_development_plan.md).
 
