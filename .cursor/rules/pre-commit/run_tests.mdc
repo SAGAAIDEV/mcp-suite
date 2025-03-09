@@ -15,11 +15,6 @@ When asked to run tests or fix failing tests, follow this workflow:
    ```
    Ignore keyboard interupt warnings
 
-2. **Add coverage** to see what parts of the code are not covered:
-   ```bash
-   PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pytest <test_path> --cov=<module_path> --cov-report=term-missing -v
-   ```
-
 3. **Focus on one failing test at a time**:
    ```bash
    PYTHONPATH=/Users/andrew/saga/dreamweaver4 uv run pytest <test_path>::<test_name> -v

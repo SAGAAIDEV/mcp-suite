@@ -106,7 +106,8 @@ class TestFilterFunctions:
             },
         ]
 
-        # Define a criteria function that selects paragraphs with text longer than or equal to 10 chars
+        # Define a criteria function that selects paragraphs with text longer than
+        # or equal to 10 chars
         def criteria_fn(p):
             return len(p["text"]) >= 10
 
