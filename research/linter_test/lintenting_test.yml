@@ -1,23 +1,11 @@
-#################################
-#################################
-## Super Linter GitHub Actions ##
-#################################
-#################################
-name: Lint Code Base
+name: Lint and Test
 
-#############################
-# Start the job on all push #
-#############################
 on:
   push:
-    branches-ignore: [master, main]
-    # Remove the line above to run when pushing to master
   pull_request:
-    branches: [master, main]
 
 jobs:
-  build:
-    name: Lint Code Base and Run Tests
+  lint-and-test:
     runs-on: ubuntu-latest
 
     permissions:
@@ -26,15 +14,15 @@ jobs:
       statuses: write
 
     steps:
-     # 1. Check out the code
-      - name: Checkout Code
+      # 1. Check out the code
+      - name: Checkout code
         uses: actions/checkout@v3
         with:
-        # Fetch full git history for Super Linter to detect changed files properly
+          # Fetch full git history for Super Linter to detect changed files properly
           fetch-depth: 0
 
-     # 2. Run GitHub Super Linter
-      - name: Lint Code Base
+      # 2. Run GitHub Super Linter
+      - name: Super Linter
         uses: super-linter/super-linter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,8 +37,19 @@ jobs:
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_MARKDOWN: false
 
+      # 3. Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'  # or a stable version like '3.11'
+
+      # 4. Install dependencies (assuming a pyproject.toml or setup.py)
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      # 5. Run your tests
       - name: Run tests
-        run: pytest -v --cov=src
-
-
-
+        run: |
+          pytest -v --cov=src
