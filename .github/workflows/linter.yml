@@ -35,7 +35,7 @@ jobs:
         uses: super-linter/super-linter@v5
         env:
           VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: test/re-org     # main
+          DEFAULT_BRANCH: main
           VALIDATE_OPENAPI: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_ISORT: false
@@ -43,4 +43,8 @@ jobs:
           VALIDATE_DOCKERFILE_HADOLINT: false
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_MARKDOWN: false
+
+      - name: Run Tests
+        run: |
+          pytest -v
 
