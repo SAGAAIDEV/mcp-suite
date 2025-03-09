@@ -4,3 +4,5 @@
 logs/
 db/
 .coverage*
+.venv
+info.txt
