@@ -515,10 +515,126 @@ async def test_get_accounts_with_datetime_formatting():
     # Check account with timestamp
     assert accounts[0]["name"] == "Account With Timestamp"
     assert accounts[0]["last_used"] == test_time.isoformat()
+    assert accounts[0]["is_service_active"] is False  # No active account set yet
 
     # Check account without timestamp
     assert accounts[1]["name"] == "Account Without Timestamp"
     assert accounts[1]["last_used"] is None
+    assert accounts[1]["is_service_active"] is False  # No active account set yet
+
+
+@pytest.mark.asyncio
+async def test_set_active_account():
+    """Test setting an account as active."""
+    # Create credentials
+    creds = Credentials(
+        name="Test Credentials",
+        credential_type=CredentialType.API_KEY,
+        api_key="test_key",
+    )
+
+    # Create two accounts
+    account1 = Account(name="Account 1", credentials=creds)
+    account2 = Account(name="Account 2", credentials=creds)
+
+    # Create service with both accounts
+    service = BaseService(
+        name="Test Service",
+        service_type="test_service",
+        accounts=[account1, account2],
+    )
+
+    # Initially no active account
+    assert service.active_account_index is None
+    accounts = service.get_accounts()
+    assert accounts[0]["is_service_active"] is False
+    assert accounts[1]["is_service_active"] is False
+
+    # Set account1 as active
+    success = await service.set_active_account(account1.id)
+    assert success
+    assert service.active_account_index == 0
+
+    # Check that account1 is now active
+    accounts = service.get_accounts()
+    assert accounts[0]["is_service_active"] is True
+    assert accounts[1]["is_service_active"] is False
+
+    # Set account2 as active
+    success = await service.set_active_account(account2.id)
+    assert success
+    assert service.active_account_index == 1
+
+    # Check that account2 is now active
+    accounts = service.get_accounts()
+    assert accounts[0]["is_service_active"] is False
+    assert accounts[1]["is_service_active"] is True
+
+    # Try to set a non-existent account as active
+    non_existent_id = uuid4()
+    success = await service.set_active_account(non_existent_id)
+    assert not success
+    assert service.active_account_index == 1  # Unchanged
+
+
+@pytest.mark.asyncio
+async def test_set_active_account_with_exception():
+    """Test setting an account as active with an exception."""
+    # Create credentials
+    creds = Credentials(
+        name="Test Credentials",
+        credential_type=CredentialType.API_KEY,
+        api_key="test_key",
+    )
+
+    # Create an account
+    account = Account(name="Test Account", credentials=creds)
+
+    # Create service with the account
+    service = BaseService(
+        name="Test Service",
+        service_type="test_service",
+        accounts=[account],
+    )
+
+    # Test set_active_account with exception
+    with patch(
+        "mcp_suite.models.redis_model.RedisModel.save_to_redis",
+        side_effect=Exception("Test error"),
+    ):
+        success = await service.set_active_account(account.id)
+        assert not success
+        assert service.active_account_index is None  # Not set due to exception
+
+
+@pytest.mark.asyncio
+async def test_set_active_account_with_save_failure():
+    """Test setting an account as active when save_to_redis returns False."""
+    # Create credentials
+    creds = Credentials(
+        name="Test Credentials",
+        credential_type=CredentialType.API_KEY,
+        api_key="test_key",
+    )
+
+    # Create an account
+    account = Account(name="Test Account", credentials=creds)
+
+    # Create service with the account
+    service = BaseService(
+        name="Test Service",
+        service_type="test_service",
+        accounts=[account],
+    )
+
+    # Test set_active_account with save_to_redis returning False
+    with patch(
+        "mcp_suite.models.redis_model.RedisModel.save_to_redis",
+        return_value=False,
+    ):
+        success = await service.set_active_account(account.id)
+        assert not success
+        assert service.active_account_index is None  # Not set due to save failure
 
 
 if __name__ == "__main__":  # pragma: no cover

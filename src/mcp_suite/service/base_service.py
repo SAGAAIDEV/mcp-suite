@@ -151,6 +151,7 @@ class BaseService(RedisModel):
         accounts: List of accounts for this service
         is_enabled: Whether the service is enabled
         last_active: When the service was last active
+        active_account_index: The index of the active account in the accounts list
     """
 
     # Class registry to track all service instances
@@ -161,17 +162,7 @@ class BaseService(RedisModel):
     accounts: List[Account] = Field(default_factory=list)
     is_enabled: bool = Field(default=True)
     last_active: Optional[datetime] = Field(default=None)
-
-    # Fields to persist in Redis
-    _redis_persist_fields: ClassVar[List[str]] = [
-        "id",
-        "name",
-        "description",
-        "service_type",
-        "accounts",
-        "is_enabled",
-        "last_active",
-    ]
+    active_account_index: Optional[int] = Field(default=None)
 
     @model_validator(mode="after")
     def register_service(self) -> "BaseService":
@@ -218,8 +209,9 @@ class BaseService(RedisModel):
                 "last_used": (
                     account.last_used.isoformat() if account.last_used else None
                 ),
+                "is_service_active": index == self.active_account_index,
             }
-            for account in self.accounts
+            for index, account in enumerate(self.accounts)
         ]
 
     async def add_account(self, account: Account) -> bool:
@@ -325,3 +317,42 @@ class BaseService(RedisModel):
             List of all service instances
         """
         return await cls.get_all_from_redis()
+
+    async def set_active_account(self, account_id: Union[UUID, str]) -> bool:
+        """
+        Set an account as the active account for this service.
+
+        Args:
+            account_id: The ID of the account to set as active
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            account_id_str = str(account_id)
+            for index, account in enumerate(self.accounts):
+                if str(account.id) == account_id_str:
+                    # Store the index temporarily
+                    temp_index = index
+                    self.updated_at = datetime.now()
+
+                    # Save to Redis first
+                    if await self.save_to_redis():
+                        # Only set the index after successful save
+                        self.active_account_index = temp_index
+                        logger.info(
+                            f"Set account {account_id} as active for service {self.id}"
+                        )
+                        return True
+                    else:
+                        logger.error(
+                            f"Failed to save service {self.id} \
+                                  when setting active account"
+                        )
+                        return False
+
+            logger.warning(f"Account {account_id} not found in service {self.id}")
+            return False
+        except Exception as e:
+            logger.error(f"Error setting active account for service {self.id}: {e}")
+            return False
