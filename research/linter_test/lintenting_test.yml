@@ -1,0 +1,70 @@
+#################################
+#################################
+## Linter-CI Pipeline GitHub Actions ##
+#################################
+#################################
+name: Linter-CI Pipeline
+
+#############################
+# Start the job on all push #
+#############################
+on:
+  push:
+    branches-ignore: [master, main]
+    # Remove the line above to run when pushing to master
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    name: Lint Code Base and Run Tests
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
+    steps:
+     # 1. Check out the code
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+        # Fetch full git history for Super Linter to detect changed files properly
+          fetch-depth: 0
+
+     # 2. Run GitHub Super Linter
+      - name: Lint Code Base
+        uses: super-linter/super-linter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Adjust linter settings as needed
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          VALIDATE_OPENAPI: false
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_ISORT: false
+          VALIDATE_JSCPD: false
+          VALIDATE_DOCKERFILE_HADOLINT: false
+          VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_MARKDOWN: false
+
+      # 3. Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'  # or a stable version like '3.11'
+
+      # 4. Install dependencies (assuming a pyproject.toml or setup.py)
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      # 5. Run your tests
+      - name: Run tests
+        run: pytest -v --cov=src
+
+
+
+
