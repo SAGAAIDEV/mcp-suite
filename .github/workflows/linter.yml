@@ -52,8 +52,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13'  # Specify your desired Python version
-
+          python-version: '3.13'
+      # --------------------------------------------
+      # Stage 3.5: Install uv package installer
+      # --------------------------------------------
+      - name: Install uv
+        run: |
+          pip install uv
       # --------------------------------------------
       # Stage 4: Install Project Dependencies
       # --------------------------------------------
