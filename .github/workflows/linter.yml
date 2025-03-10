@@ -87,6 +87,7 @@ jobs:
             python -m pytest -v
           fi
 
+
       # --------------------------------------------
       # Stage 7: Run Black for Code Formatting
       # If black check fails, workflow fails.
@@ -111,9 +112,10 @@ jobs:
           else
             python -m pip install isort
             python -m isort . --check
+          fi
 
       # --------------------------------------------
-      # (Optional) Stage 9: Final Coverage Threshold Check
+      # Stage 9: Final Coverage Threshold Check
       # This step can also fail the workflow if coverage is below threshold.
       # --------------------------------------------
       - name: Check Coverage Threshold
@@ -133,5 +135,6 @@ jobs:
             echo "Coverage ($coverage_line_rate) is below 100%. Failing the job."
             exit 1
           else
-            echo "Coverage meets or exceeds 100%. Good to go!"
+            echo "Coverage met. Good to go!"
           fi
+
