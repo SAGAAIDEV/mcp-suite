@@ -87,3 +87,7 @@ For more detailed information, please refer to the following documentation:
 ## License
 
 [License information will be added here]
+
+## Testing
+
+uv run python -m pytest . --cov=src/ --cov-report=term-missing 

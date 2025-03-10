@@ -39,7 +39,7 @@ from loguru import logger
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel
 
-from mcp_suite.service.base_service import Account, BaseService, Credentials
+from mcp_suite.base.base_service import Account, BaseService, Credentials
 
 
 class AccountResponse(BaseModel):
