@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0  # Fetch the full Git history
 
       # --------------------------------------------
-      # Stage 2: Optional - Run GitHub Super Linter for Additional Checks
+      # Stage 2: Run GitHub Super Linter (Optional)
       # --------------------------------------------
       - name: Lint Code Base with Super Linter
         uses: super-linter/super-linter@v5
@@ -68,18 +68,18 @@ jobs:
       - name: Run tests with coverage
         run: |
           # Ensure pytest-cov is included in your [dev] dependencies.
-          uv run pytest . --cov=src/ --cov-report=term-missing --cov-fail-under=100 -v
+          python -m uv run pytest . --cov=src/ --cov-report=term-missing --cov-fail-under=100 -v
 
       # --------------------------------------------
       # Stage 6: Run Black for Code Formatting (CI Only)
       # --------------------------------------------
       - name: Run Black
         run: |
-          uv run black .
+          python -m uv run black .
 
       # --------------------------------------------
       # Stage 7: Run isort for Import Order Checks (CI Only)
       # --------------------------------------------
       - name: Run isort
         run: |
-          uv run isort .
+          python -m uv run isort .
