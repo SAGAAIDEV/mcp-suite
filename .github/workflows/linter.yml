@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0  # Fetch the full Git history
 
       # --------------------------------------------
-      # Stage 2: Run GitHub Super Linter (Optional)
+      # Stage 2: Run GitHub Super Linter
       # --------------------------------------------
       - name: Lint Code Base with Super Linter
         uses: super-linter/super-linter@v5
