@@ -1,9 +1,9 @@
 #################################
 #################################
-## Super Linter GitHub Actions ##
+## Linter-CI Pipeline GitHub Actions ##
 #################################
 #################################
-name: Lint Code Base
+name: Linter-CI Pipeline
 
 #############################
 # Start the job on all push #
