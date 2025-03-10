@@ -1,11 +1,23 @@
-name: Lint and Test
+#################################
+#################################
+## Linter-CI Pipeline GitHub Actions ##
+#################################
+#################################
+name: Linter-CI Pipeline
 
+#############################
+# Start the job on all push #
+#############################
 on:
   push:
+    branches-ignore: [master, main]
+    # Remove the line above to run when pushing to master
   pull_request:
+    branches: [master, main]
 
 jobs:
-  lint-and-test:
+  build:
+    name: Lint Code Base and Run Tests
     runs-on: ubuntu-latest
 
     permissions:
@@ -14,15 +26,15 @@ jobs:
       statuses: write
 
     steps:
-      # 1. Check out the code
-      - name: Checkout code
+     # 1. Check out the code
+      - name: Checkout Code
         uses: actions/checkout@v3
         with:
-          # Fetch full git history for Super Linter to detect changed files properly
+        # Fetch full git history for Super Linter to detect changed files properly
           fetch-depth: 0
 
-      # 2. Run GitHub Super Linter
-      - name: Super Linter
+     # 2. Run GitHub Super Linter
+      - name: Lint Code Base
         uses: super-linter/super-linter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -51,5 +63,8 @@ jobs:
 
       # 5. Run your tests
       - name: Run tests
-        run: |
-          pytest -v --cov=src
+        run: pytest -v --cov=src
+
+
+
+
