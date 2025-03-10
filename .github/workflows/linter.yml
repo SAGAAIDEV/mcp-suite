@@ -31,10 +31,10 @@ jobs:
 
       # --------------------------------------------
       # Stage 2: Run GitHub Super Linter
+      # If the linter fails, the job fails immediately (no continue-on-error).
       # --------------------------------------------
       - name: Lint Code Base with Super Linter
         uses: super-linter/super-linter@v5
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: false
@@ -56,15 +56,15 @@ jobs:
           python-version: '3.13'  # Specify your desired Python version
 
       # --------------------------------------------
-      # Stage 3.5: Install uv package installer
+      # Stage 4: Install uv package
+      # Failure here will stop the workflow.
       # --------------------------------------------
       - name: Install uv
         run: |
           pip install uv
-        continue-on-error: true  # Allow next steps to run even if this fails
 
       # --------------------------------------------
-      # Stage 4: Install Project Dependencies
+      # Stage 5: Install Project Dependencies
       # --------------------------------------------
       - name: Install dependencies
         run: |
@@ -72,44 +72,66 @@ jobs:
           pip install -e ".[dev]"
           # Explicitly install pytest-cov to fix coverage issues
           pip install pytest pytest-cov
-        continue-on-error: true  # Allow next steps to run even if this fails
 
       # --------------------------------------------
-      # Stage 5: Run Tests with Coverage (CI Only)
+      # Stage 6: Run Tests with Coverage
+      # Failure here will stop the workflow.
       # --------------------------------------------
       - name: Run tests with coverage
         run: |
           # Run pytest with coverage if src directory exists
           if [ -d "src" ]; then
-            python -m pytest --cov=src/ --cov-report=term-missing -v || echo "Tests failed but continuing..."
+            python -m pytest --cov=src/ --cov-report=xml --cov-report=term-missing -v
           else
             # Fallback if src directory doesn't exist
-            python -m pytest -v || echo "Tests failed but continuing..."
+            python -m pytest -v
           fi
-        continue-on-error: true
 
       # --------------------------------------------
-      # Stage 6: Run Black for Code Formatting (CI Only)
+      # Stage 7: Run Black for Code Formatting
+      # If black check fails, workflow fails.
       # --------------------------------------------
       - name: Run Black
         run: |
           if command -v black >/dev/null 2>&1; then
-            python -m black . --check || echo "Black check failed but continuing..."
+            python -m black . --check
           else
             python -m pip install black
-            python -m black . --check || echo "Black check failed but continuing..."
+            python -m black . --check
           fi
-        continue-on-error: true
 
       # --------------------------------------------
-      # Stage 7: Run isort for Import Order Checks (CI Only)
+      # Stage 8: Run isort for Import Order Checks
+      # If isort check fails, workflow fails.
       # --------------------------------------------
       - name: Run isort
         run: |
           if command -v isort >/dev/null 2>&1; then
-            python -m isort . --check || echo "isort check failed but continuing..."
+            python -m isort . --check
           else
             python -m pip install isort
-            python -m isort . --check || echo "isort check failed but continuing..."
+            python -m isort . --check
+
+      # --------------------------------------------
+      # (Optional) Stage 9: Final Coverage Threshold Check
+      # This step can also fail the workflow if coverage is below threshold.
+      # --------------------------------------------
+      - name: Check Coverage Threshold
+        run: |
+          # Make sure coverage.xml was generated
+          if [ ! -f coverage.xml ]; then
+            echo "No coverage.xml found. Failing."
+            exit 1
           fi
-        continue-on-error: true
+
+          coverage_line_rate=$(grep 'line-rate=' coverage.xml | sed -E 's/.*line-rate="([0-9\.]+)".*/\1/')
+          echo "Coverage line rate found: $coverage_line_rate"
+
+          required=1.0  # 1.0 = 100%; adjust as needed
+          check=$(awk -v c1="$coverage_line_rate" -v c2="$required" 'BEGIN {print (c1 < c2) ? "fail" : "pass"}')
+          if [ "$check" = "fail" ]; then
+            echo "Coverage ($coverage_line_rate) is below 100%. Failing the job."
+            exit 1
+          else
+            echo "Coverage meets or exceeds 100%. Good to go!"
+          fi
