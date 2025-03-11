@@ -2,8 +2,6 @@
 Tests for direct imports of modules to ensure coverage.
 """
 
-import pytest
-
 
 def test_direct_import_redis_model():
     """Test direct import of redis_model module."""

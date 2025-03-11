@@ -240,7 +240,7 @@ def test_parse_redis_url_complete():
     host, port, password, db = parse_redis_url("redis://:test_pwd@hostname:1234/7")
     assert host == "hostname"
     assert port == 1234
-    assert password == "test_pwd"
+    assert password == "test_pwd"  # gitleaks:allow
     assert db == 7
 
 
