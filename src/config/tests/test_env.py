@@ -4,8 +4,6 @@ Tests for the env.py module.
 
 import os
 from pathlib import Path
-from unittest.mock import patch
-import pytest
 
 # Set required environment variables before importing the modules
 os.environ["REDDIT_CLIENT_ID"] = "test_client_id"

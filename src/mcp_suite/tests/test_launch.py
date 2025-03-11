@@ -2,8 +2,6 @@
 Tests for the launch.py module.
 """
 import os
-import sys
-import time
 from unittest.mock import MagicMock, patch
 
 # Set required environment variables before importing the modules
@@ -19,7 +17,7 @@ os.environ["CONFLUENCE_API_TOKEN"] = "test_confluence_token"
 os.environ["CONFLUENCE_EMAIL"] = "test_confluence_email"
 os.environ["CONFLUENCE_URL"] = "test_confluence_url"
 
-import pytest
+# Now import the modules
 import redis
 
 from src.mcp_suite.launch import (
@@ -226,7 +224,7 @@ def test_launch_redis_server_connection_timeout():
                 # Patch the retry loop to make it shorter
                 with patch("src.mcp_suite.redis.server.launch_redis_server") as mock_launch:
                     # Set up the mock to call the real function once, then return failure
-                    real_func = launch_redis_server
+                    # real_func = launch_redis_server
                     mock_launch.side_effect = lambda **kwargs: (False, mock_process)
 
                     # Call the function - this will use our mocked version that returns failure
@@ -239,10 +237,10 @@ def test_launch_redis_server_connection_timeout():
 
 def test_parse_redis_url_complete():
     """Test parse_redis_url with a complete URL."""
-    host, port, password, db = parse_redis_url("redis://:password@hostname:1234/7")
+    host, port, password, db = parse_redis_url("redis://:test_pwd@hostname:1234/7")
     assert host == "hostname"
     assert port == 1234
-    assert password == "password"
+    assert password == "test_pwd"
     assert db == 7
 
 
