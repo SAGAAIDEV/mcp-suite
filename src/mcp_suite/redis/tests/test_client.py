@@ -1,13 +1,16 @@
 """Tests for Redis client module."""
 
+import logging
 from unittest.mock import MagicMock, patch
 
+import pytest
 import redis
 
 from src.mcp_suite.redis.client import (
     close_redis_connection,
     connect_to_redis,
     parse_redis_url,
+    redis_client as global_redis_client
 )
 
 
@@ -44,104 +47,122 @@ def test_parse_redis_url_invalid_db():
     assert db == 0  # Default to 0 for invalid DB
 
 
-@patch("src.mcp_suite.redis.client.redis.Redis")
-@patch("src.mcp_suite.redis.client.parse_redis_url")
-def test_connect_to_redis_success(mock_parse_url, mock_redis_class):
+@patch("src.mcp_suite.redis.client.redis_client", None)
+@patch("src.mcp_suite.redis.client.logging")
+def test_connect_to_redis_success(mock_logging):
     """Test successful Redis connection."""
-    # Mock parse_redis_url to return test values
-    mock_parse_url.return_value = ("localhost", 6379, "password", 0)
-
-    # Mock Redis client
+    # Create mock objects
     mock_client = MagicMock()
     mock_client.ping.return_value = True
-    mock_redis_class.return_value = mock_client
 
-    # Test connection
-    result = connect_to_redis()
+    # Mock Redis.Redis to return our mock client
+    with patch("src.mcp_suite.redis.client.redis.Redis", return_value=mock_client):
+        # Mock parse_redis_url to return known values
+        with patch("src.mcp_suite.redis.client.parse_redis_url",
+                  return_value=("localhost", 6379, "password", 0)):
+            # Mock REDIS.URL
+            with patch("src.mcp_suite.redis.client.REDIS.URL", "redis://localhost:6379"):
+                # Call the function
+                result = connect_to_redis()
 
-    # Verify Redis client was created with correct parameters
-    mock_redis_class.assert_called_once()
-    assert result is mock_client
+                # Verify the result is our mock client
+                assert result is mock_client
+                # Verify logging was called
+                mock_logging.info.assert_called_once()
 
 
-@patch("src.mcp_suite.redis.client.redis.Redis")
-@patch("src.mcp_suite.redis.client.parse_redis_url")
-def test_connect_to_redis_custom_params(mock_parse_url, mock_redis_class):
+@patch("src.mcp_suite.redis.client.redis_client", None)
+@patch("src.mcp_suite.redis.client.logging")
+def test_connect_to_redis_custom_params(mock_logging):
     """Test Redis connection with custom parameters."""
-    # Mock parse_redis_url to return default values
-    mock_parse_url.return_value = ("localhost", 6379, "password", 0)
-
-    # Mock Redis client
+    # Create mock objects
     mock_client = MagicMock()
     mock_client.ping.return_value = True
-    mock_redis_class.return_value = mock_client
+    mock_redis = MagicMock(return_value=mock_client)
 
-    # Test connection with custom parameters
+    # Custom parameters
     custom_host = "custom-host"
     custom_port = 6380
     custom_password = "custom-password"
     custom_db = 2
 
-    result = connect_to_redis(
-        host=custom_host, port=custom_port, password=custom_password, db=custom_db
-    )
+    with patch("src.mcp_suite.redis.client.redis.Redis", mock_redis):
+        # Call the function with custom parameters
+        result = connect_to_redis(
+            host=custom_host, port=custom_port, password=custom_password, db=custom_db
+        )
 
-    # Verify Redis client was created with custom parameters
-    mock_redis_class.assert_called_once_with(
-        host=custom_host,
-        port=custom_port,
-        password=custom_password,
-        db=custom_db,
-        decode_responses=True,
-    )
-    assert result is mock_client
+        # Verify Redis.Redis was called with the correct parameters
+        mock_redis.assert_called_once_with(
+            host=custom_host,
+            port=custom_port,
+            password=custom_password,
+            db=custom_db,
+            decode_responses=True,
+        )
 
-
-@patch("src.mcp_suite.redis.client.redis.Redis")
-@patch("src.mcp_suite.redis.client.parse_redis_url")
-def test_connect_to_redis_connection_error(mock_parse_url, mock_redis_class):
-    """Test Redis connection failure."""
-    # Mock parse_redis_url to return test values
-    mock_parse_url.return_value = ("localhost", 6379, "password", 0)
-
-    # Mock Redis client to raise ConnectionError
-    mock_client = MagicMock()
-    mock_client.ping.side_effect = redis.ConnectionError("Connection refused")
-    mock_redis_class.return_value = mock_client
-
-    # Test connection
-    result = connect_to_redis()
-
-    # Verify result is None on connection error
-    assert result is None
-
-
-@patch("src.mcp_suite.redis.client.redis_client")
-def test_close_redis_connection_success(mock_redis_client):
-    """Test successful Redis connection closure."""
-    # Test closing connection
-    close_redis_connection()
-
-    # Verify client was closed
-    mock_redis_client.close.assert_called_once()
-
-
-@patch("src.mcp_suite.redis.client.redis_client")
-def test_close_redis_connection_error(mock_redis_client):
-    """Test Redis connection closure with error."""
-    # Mock client to raise exception on close
-    mock_redis_client.close.side_effect = Exception("Close error")
-
-    # Test closing connection
-    close_redis_connection()
-
-    # Verify client.close was still called
-    mock_redis_client.close.assert_called_once()
+        # Verify the result is our mock client
+        assert result is mock_client
+        # Verify logging was called
+        mock_logging.info.assert_called_once()
 
 
 @patch("src.mcp_suite.redis.client.redis_client", None)
+@patch("src.mcp_suite.redis.client.logging")
+def test_connect_to_redis_connection_error(mock_logging):
+    """Test Redis connection failure."""
+    # Create mock objects
+    mock_client = MagicMock()
+    mock_client.ping.side_effect = redis.ConnectionError("Connection refused")
+
+    with patch("src.mcp_suite.redis.client.redis.Redis", return_value=mock_client):
+        # Call the function
+        result = connect_to_redis()
+
+        # Verify the result is None
+        assert result is None
+        # Verify error was logged
+        mock_logging.error.assert_called_once()
+
+
+@patch("src.mcp_suite.redis.client.logging")
+def test_close_redis_connection_success(mock_logging):
+    """Test successful Redis connection closure."""
+    # Create a mock client
+    mock_client = MagicMock()
+
+    # Patch the global redis_client
+    with patch("src.mcp_suite.redis.client.redis_client", mock_client):
+        # Call the function
+        close_redis_connection()
+
+        # Verify client.close was called
+        mock_client.close.assert_called_once()
+        # Verify logging was called
+        mock_logging.info.assert_called_once()
+
+
+@patch("src.mcp_suite.redis.client.logging")
+def test_close_redis_connection_error(mock_logging):
+    """Test Redis connection closure with error."""
+    # Create a mock client that raises an exception on close
+    mock_client = MagicMock()
+    mock_client.close.side_effect = Exception("Close error")
+
+    # Patch the global redis_client
+    with patch("src.mcp_suite.redis.client.redis_client", mock_client):
+        # Call the function
+        close_redis_connection()
+
+        # Verify client.close was called
+        mock_client.close.assert_called_once()
+        # Verify error was logged
+        mock_logging.error.assert_called_once()
+
+
 def test_close_redis_connection_none():
     """Test closing Redis connection when client is None."""
-    # Test closing connection when client is None
-    close_redis_connection()
-    # No exception should be raised
+    # Patch the global redis_client to be None
+    with patch("src.mcp_suite.redis.client.redis_client", None):
+        # Call the function - should not raise any exceptions
+        close_redis_connection()

@@ -62,13 +62,31 @@ jobs:
       # --------------------------------------------
       - name: Run tests with coverage
         run: |
-          # Run pytest with coverage if src directory exists
-          if [ -d "src" ]; then
-            python -m pytest --cov=src/ --cov-report=xml --cov-report=term-missing -v
-          else
-            # Fallback if src directory doesn't exist
-            python -m pytest -v
-          fi
+          # Create or overwrite coverage configuration
+          echo "[run]" > coverage.ini
+          echo "source = src" >> coverage.ini
+          echo "omit =" >> coverage.ini
+          echo "    */tests/*" >> coverage.ini
+          echo "    */test_*.py" >> coverage.ini
+          echo "    */__pycache__/*" >> coverage.ini
+          echo "    */.venv/*" >> coverage.ini
+          echo "    */examples/*" >> coverage.ini
+
+          echo "[report]" >> coverage.ini
+          echo "exclude_lines =" >> coverage.ini
+          echo "    pragma: no cover" >> coverage.ini
+          echo "    def __repr__" >> coverage.ini
+          echo "    raise NotImplementedError" >> coverage.ini
+          echo "    if __name__ == '__main__':" >> coverage.ini
+          echo "    pass" >> coverage.ini
+          echo "    raise ImportError" >> coverage.ini
+          echo "    except ImportError" >> coverage.ini
+
+          echo "[html]" >> coverage.ini
+          echo "directory = coverage_html_report" >> coverage.ini
+
+          # Set PYTHONPATH to avoid import issues and run pytest for all src files
+          PYTHONPATH=src python -m pytest --cov=src --cov-config=coverage.ini --cov-report=xml --cov-report=term-missing -v
 
 
       # --------------------------------------------

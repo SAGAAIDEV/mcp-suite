@@ -1,4 +1,4 @@
-# conftest.py
+# Global conftest.py
 import os
 import sys
 import types
@@ -114,3 +114,19 @@ dummy_pydantic.networks.AnyUrl = MagicMock()
 dummy_pydantic.networks.UrlConstraints = MagicMock()
 sys.modules["pydantic"] = dummy_pydantic
 sys.modules["pydantic.networks"] = dummy_pydantic.networks
+
+# Create a mock for mcp
+dummy_mcp = types.ModuleType("mcp")
+dummy_mcp.server = types.ModuleType("mcp.server")
+dummy_mcp.server.fastmcp = types.ModuleType("mcp.server.fastmcp")
+dummy_mcp.server.fastmcp.FastMCP = MagicMock()
+dummy_mcp.client = types.ModuleType("mcp.client")
+dummy_mcp.client.session = types.ModuleType("mcp.client.session")
+dummy_mcp.client.session.ClientSession = MagicMock()
+dummy_mcp.types = types.ModuleType("mcp.types")
+sys.modules["mcp"] = dummy_mcp
+sys.modules["mcp.server"] = dummy_mcp.server
+sys.modules["mcp.server.fastmcp"] = dummy_mcp.server.fastmcp
+sys.modules["mcp.client"] = dummy_mcp.client
+sys.modules["mcp.client.session"] = dummy_mcp.client.session
+sys.modules["mcp.types"] = dummy_mcp.types
