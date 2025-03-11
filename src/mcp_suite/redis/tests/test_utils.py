@@ -5,7 +5,6 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
-from loguru import logger
 
 from mcp_suite.redis import utils
 
@@ -35,15 +34,19 @@ def reset_utils_state():
 @pytest.fixture
 def mock_path():
     """Mock Path.exists and Path.mkdir."""
-    with patch.object(Path, "exists", return_value=False) as mock_exists:
-        with patch.object(Path, "mkdir") as mock_mkdir:
-            yield mock_exists, mock_mkdir
+    mock_exists = MagicMock(return_value=False)
+    mock_mkdir = MagicMock()
+
+    with patch("pathlib.Path.exists", mock_exists), \
+         patch("pathlib.Path.mkdir", mock_mkdir):
+        yield mock_exists, mock_mkdir
 
 
 @pytest.fixture
 def mock_logger():
     """Mock the logger."""
-    with patch("mcp_suite.redis.utils.logger") as mock_log:
+    mock_log = MagicMock()
+    with patch("mcp_suite.redis.utils.logger", mock_log):
         yield mock_log
 
 
@@ -67,7 +70,9 @@ def test_setup_directories(mock_path, mock_logger):
     """Test setup_directories creates logs and db directories."""
     mock_exists, mock_mkdir = mock_path
 
-    # Call the function
+    # Ensure the logger is properly mocked
+    mock_logger.info.reset_mock()
+
     utils.setup_directories()
 
     # Check that mkdir was called twice (once for logs, once for db)
@@ -80,13 +85,14 @@ def test_setup_directories(mock_path, mock_logger):
 
 def test_setup_directories_permission_error(mock_logger):
     """Test setup_directories handles permission errors."""
-    # Mock Path.exists to return False (directories don't exist)
-    with patch.object(Path, "exists", return_value=False):
-        # Mock Path.mkdir to raise PermissionError on first and third calls
-        mkdir_mock = MagicMock(side_effect=[PermissionError, None, PermissionError, None])
-        with patch.object(Path, "mkdir", mkdir_mock):
-            # Call the function
-            utils.setup_directories()
+    mock_exists = MagicMock(return_value=False)
+    mock_mkdir = MagicMock(side_effect=[PermissionError, None, PermissionError, None])
+
+    # Ensure the logger is properly mocked
+    mock_logger.warning.reset_mock()
+
+    with patch("pathlib.Path.exists", mock_exists), patch("pathlib.Path.mkdir", mock_mkdir):
+        utils.setup_directories()
 
     # Check that warning was logged for fallback directories
     assert mock_logger.warning.call_count == 2
@@ -94,77 +100,84 @@ def test_setup_directories_permission_error(mock_logger):
 
 def test_configure_logger_first_time(reset_logger_state):
     """Test configure_logger when called for the first time."""
-    # Create mock objects for logger.add and logger.remove
-    with patch("loguru.logger.add", return_value=1) as mock_add:
-        with patch("loguru.logger.remove") as mock_remove:
-            with patch("mcp_suite.redis.utils.logger") as mock_logger:
-                # Set up the test state
-                utils.logger_configured = False
-                utils.logger_ids = []
+    # Create mock objects
+    mock_add = MagicMock(side_effect=[1, 2])  # Return IDs for tracking
+    mock_remove = MagicMock()
+    mock_logger = MagicMock()
 
-                # Call the function
-                utils.configure_logger()
+    with patch("mcp_suite.redis.utils.logger_configured", False), \
+         patch("mcp_suite.redis.utils.logger_ids", []), \
+         patch("loguru.logger.add", mock_add), \
+         patch("loguru.logger.remove", mock_remove), \
+         patch("mcp_suite.redis.utils.logger", mock_logger):
 
-                # Verify logger.remove was called
-                mock_remove.assert_called_once()
-                # Verify logger.add was called at least once
-                assert mock_add.call_count >= 1
+        # Import the module inside the patch to ensure patches take effect
+        from mcp_suite.redis import utils
+        utils.configure_logger()
+
+        # Check logger was configured correctly
+        mock_remove.assert_called_once()
+        assert mock_add.call_count == 2
+
+        # First call should be to stderr
+        assert mock_add.call_args_list[0][0][0] == sys.stderr
+
+        # Second call should be to log file
+        assert str(utils.logs_dir) in str(mock_add.call_args_list[1][0][0])
 
 
 def test_configure_logger_already_configured(reset_logger_state, mock_logger):
     """Test configure_logger when logger is already configured."""
-    with patch("loguru.logger.add") as mock_add:
-        # Set up the test state
-        utils.logger_configured = True
+    mock_add = MagicMock()
 
-        # Call the function
+    with patch("mcp_suite.redis.utils.logger_configured", True), \
+         patch("loguru.logger.add", mock_add):
+
         utils.configure_logger()
 
-        # Verify logger.add was not called
+        # Should not attempt to add new handlers
         mock_add.assert_not_called()
 
 
 def test_configure_logger_file_exception(reset_logger_state):
     """Test configure_logger when adding file logger raises exception."""
-    # Mock logger.add to return 1 for the first call and raise Exception for the second call
-    add_mock = MagicMock(side_effect=[1, Exception("File error")])
+    # Create mock objects
+    mock_add = MagicMock(side_effect=[1, Exception("File error")])
+    mock_logger = MagicMock()
 
-    with patch("loguru.logger.add", add_mock):
-        with patch("loguru.logger.remove"):
-            with patch("mcp_suite.redis.utils.logger") as mock_logger:
-                # Set up the test state
-                utils.logger_configured = False
-                utils.logger_ids = []
+    with patch("mcp_suite.redis.utils.logger_configured", False), \
+         patch("mcp_suite.redis.utils.logger_ids", []), \
+         patch("loguru.logger.add", mock_add), \
+         patch("mcp_suite.redis.utils.logger", mock_logger):
 
-                # Call the function
-                utils.configure_logger()
+        # Import the module inside the patch to ensure patches take effect
+        from mcp_suite.redis import utils
+        utils.configure_logger()
 
-                # Verify warning was logged
-                mock_logger.warning.assert_called_once()
+        # Should log warning about file logger failure
+        mock_logger.warning.assert_called_once()
 
 
 def test_cleanup_logger(reset_logger_state):
     """Test cleanup_logger properly cleans up resources."""
-    with patch("loguru.logger.remove") as mock_remove:
-        # Set up the test state
-        utils.logger_configured = True
-        utils.logger_ids = [1, 2]
+    mock_remove = MagicMock()
 
-        # Call the function
+    with patch("mcp_suite.redis.utils.logger_configured", True), \
+         patch("mcp_suite.redis.utils.logger_ids", [1, 2]), \
+         patch("loguru.logger.remove", mock_remove):
+
         utils.cleanup_logger()
 
-        # Verify logger.remove was called
+        # Should remove all handlers
         mock_remove.assert_called_once()
-        # Verify state was reset
+
+        # Should reset state
         assert not utils.logger_configured
         assert len(utils.logger_ids) == 0
 
 
 def test_get_db_dir():
     """Test get_db_dir returns the correct path."""
-    # Call the function
     result = utils.get_db_dir()
-
-    # Verify the result
     assert result == utils.db_dir
     assert isinstance(result, Path)
