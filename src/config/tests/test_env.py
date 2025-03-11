@@ -20,8 +20,18 @@ os.environ["CONFLUENCE_URL"] = "test_confluence_url"
 
 # Now import the modules
 from src.config.env import (
-    ASSEMBLYAI, BLUESKY, CELERY, CONFLUENCE, FLOWER, LLM_API_KEYS,
-    PATHS, REDIS, REDDIT, SESSION, TWITCH, ZOOM
+    ASSEMBLYAI,
+    BLUESKY,
+    CELERY,
+    CONFLUENCE,
+    FLOWER,
+    LLM_API_KEYS,
+    PATHS,
+    REDDIT,
+    REDIS,
+    SESSION,
+    TWITCH,
+    ZOOM,
 )
 
 

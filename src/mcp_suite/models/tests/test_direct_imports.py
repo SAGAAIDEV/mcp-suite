@@ -6,13 +6,13 @@ Tests for direct imports of modules to ensure coverage.
 def test_direct_import_redis_model():
     """Test direct import of redis_model module."""
     from src.mcp_suite.models.redis_model import (
+        UUID,
         RedisModel,
         T,
         datetime,
-        UUID,
-        uuid4,
-        logger,
         get_redis_store,
+        logger,
+        uuid4,
     )
 
     # Verify imports
@@ -39,12 +39,12 @@ def test_direct_import_redis_model():
 def test_direct_import_redis_store():
     """Test direct import of redis_store module."""
     from src.mcp_suite.models.redis_store import (
-        parse_redis_url,
-        get_redis_store,
-        close_redis_store,
-        logger,
-        Store,
         RedisConfig,
+        Store,
+        close_redis_store,
+        get_redis_store,
+        logger,
+        parse_redis_url,
     )
 
     # Verify imports

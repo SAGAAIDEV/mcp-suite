@@ -1,44 +1,42 @@
 #################################
 #################################
-## Linter-CI Pipeline GitHub Actions ##
+# CI-Linter Pipeline GitHub Actions #
 #################################
 #################################
-name: Linter-CI Pipeline
+name: CI-Linter Pipeline
 
-#############################
-# Start the job on all push #
-#############################
 on:
   push:
-    branches-ignore: [master, main]
-    # Remove the line above to run when pushing to master
+    branches-ignore: [master, main]  # Skip CI on pushes to master/main (adjust as needed)
   pull_request:
-    branches: [master, main]
+    branches: [master, main]         # Run CI for pull requests targeting master/main
 
 jobs:
   build:
     name: Lint Code Base and Run Tests
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       packages: read
       statuses: write
 
     steps:
-     # 1. Check out the code
+      # --------------------------------------------
+      # Stage 1: Checkout the Repository
+      # --------------------------------------------
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
-        # Fetch full git history for Super Linter to detect changed files properly
-          fetch-depth: 0
+          fetch-depth: 0  # Fetch the full Git history
 
-     # 2. Run GitHub Super Linter
-      - name: Lint Code Base
+      # --------------------------------------------
+      # Stage 2: Run GitHub Super Linter
+      # If the linter fails, the job fails immediately (no continue-on-error).
+      # --------------------------------------------
+      - name: Lint Code Base with Super Linter
         uses: super-linter/super-linter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Adjust linter settings as needed
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           VALIDATE_OPENAPI: false
@@ -49,22 +47,94 @@ jobs:
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_MARKDOWN: false
 
-      # 3. Set up Python
+      # --------------------------------------------
+      # Stage 3: Set Up Python Environment
+      # --------------------------------------------
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13'  # or a stable version like '3.11'
+          python-version: '3.13'  # Specify your desired Python version
 
-      # 4. Install dependencies (assuming a pyproject.toml or setup.py)
+      # --------------------------------------------
+      # Stage 4: Install uv package
+      # Failure here will stop the workflow.
+      # --------------------------------------------
+      - name: Install uv
+        run: |
+          pip install uv
+
+      # --------------------------------------------
+      # Stage 5: Install Project Dependencies
+      # --------------------------------------------
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
+          # Explicitly install pytest-cov to fix coverage issues
+          pip install pytest pytest-cov
 
-      # 5. Run your tests
-      - name: Run tests
-        run: pytest -v --cov=src
+      # --------------------------------------------
+      # Stage 6: Run Tests with Coverage
+      # Failure here will stop the workflow.
+      # --------------------------------------------
+      - name: Run tests with coverage
+        run: |
+          # Run pytest with coverage if src directory exists
+          if [ -d "src" ]; then
+            python -m pytest --cov=src/ --cov-report=xml --cov-report=term-missing -v
+          else
+            # Fallback if src directory doesn't exist
+            python -m pytest -v
+          fi
 
 
+      # --------------------------------------------
+      # Stage 7: Run Black for Code Formatting
+      # If black check fails, workflow fails.
+      # --------------------------------------------
+      - name: Run Black
+        run: |
+          if command -v black >/dev/null 2>&1; then
+            python -m black . --check
+          else
+            python -m pip install black
+            python -m black . --check
+          fi
 
+      # --------------------------------------------
+      # Stage 8: Run isort for Import Order Checks
+      # If isort check fails, workflow fails.
+      # --------------------------------------------
+      - name: Run isort
+        run: |
+          if command -v isort >/dev/null 2>&1; then
+            python -m isort . --check
+          else
+            python -m pip install isort
+            python -m isort . --check
+          fi
+
+      # --------------------------------------------
+      # Stage 9: Final Coverage Threshold Check
+      # This step can also fail the workflow if coverage is below threshold.
+      # --------------------------------------------
+      - name: Check Coverage Threshold
+        run: |
+          # Make sure coverage.xml was generated
+          if [ ! -f coverage.xml ]; then
+            echo "No coverage.xml found. Failing."
+            exit 1
+          fi
+
+          coverage_line_rate=$(grep 'line-rate=' coverage.xml | sed -E 's/.*line-rate="([0-9\.]+)".*/\1/')
+          echo "Coverage line rate found: $coverage_line_rate"
+
+          required=1.0  # 1.0 = 100%; adjust as needed
+          check=$(awk -v c1="$coverage_line_rate" -v c2="$required" 'BEGIN {print (c1 < c2) ? "fail" : "pass"}')
+          if [ "$check" = "fail" ]; then
+            echo "Coverage ($coverage_line_rate) is below 100%. Failing the job."
+            exit 1
+          else
+            echo "Coverage met. Good to go!"
+          fi
 

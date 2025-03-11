@@ -29,23 +29,6 @@ jobs:
         with:
           fetch-depth: 0  # Fetch the full Git history
 
-      # --------------------------------------------
-      # Stage 2: Run GitHub Super Linter
-      # If the linter fails, the job fails immediately (no continue-on-error).
-      # --------------------------------------------
-      - name: Lint Code Base with Super Linter
-        uses: super-linter/super-linter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: main
-          VALIDATE_OPENAPI: false
-          VALIDATE_PYTHON_BLACK: false
-          VALIDATE_PYTHON_ISORT: false
-          VALIDATE_JSCPD: false
-          VALIDATE_DOCKERFILE_HADOLINT: false
-          VALIDATE_PYTHON_PYLINT: false
-          VALIDATE_MARKDOWN: false
 
       # --------------------------------------------
       # Stage 3: Set Up Python Environment

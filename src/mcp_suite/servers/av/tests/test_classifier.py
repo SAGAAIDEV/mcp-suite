@@ -117,8 +117,7 @@ class TestFilterFunctions:
         assert len(result) == 2
         assert result[0]["text"] == "Short text"
         assert (
-            result[1]["text"]
-            == "This is a much longer text with more than 10 characters"
+            result[1]["text"] == "This is a much longer text with more than 10 characters"
         )
 
     def test_filter_functions_with_empty_input(self):
@@ -202,9 +201,7 @@ class TestClassifierFunctions:
         assert mock_chat_anthropic.call_args[1]["temperature"] == 0.5
 
         # Assert structured output was configured with RelevanceClassifier
-        chat_instance.with_structured_output.assert_called_once_with(
-            RelevanceClassifier
-        )
+        chat_instance.with_structured_output.assert_called_once_with(RelevanceClassifier)
 
         # Assert runnable.abatch was called with the right prompts
         expected_prompt_template = (

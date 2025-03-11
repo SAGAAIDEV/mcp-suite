@@ -32,9 +32,7 @@ transcriber_service = AssemblyAIService()
     description="Transcribe an audio file and return its text content. "
     "Supports multiple audio formats.",
 )
-async def transcribe_file(
-    audio_path: str, language_code: str = DEFAULT_LANGUAGE
-) -> str:
+async def transcribe_file(audio_path: str, language_code: str = DEFAULT_LANGUAGE) -> str:
     """Transcribe an audio file using AssemblyAI.
 
     Args:

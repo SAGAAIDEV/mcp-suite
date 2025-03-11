@@ -65,9 +65,7 @@ class TestAssemblyAIService:
             with pytest.raises(RuntimeError) as excinfo:
                 AssemblyAIService()
 
-            assert "ASSEMBLYAI_API_KEY environment variable not set" in str(
-                excinfo.value
-            )
+            assert "ASSEMBLYAI_API_KEY environment variable not set" in str(excinfo.value)
 
     def test_transcribe_audio_unsupported_language(
         self, mock_env, mock_transcriber, test_audio_file
@@ -95,9 +93,7 @@ class TestAssemblyAIService:
             mock_transcriber_class.return_value = mock_transcriber_instance
 
             # Mock the transcribe method to raise an exception
-            mock_transcriber_instance.transcribe.side_effect = Exception(
-                "Test exception"
-            )
+            mock_transcriber_instance.transcribe.side_effect = Exception("Test exception")
 
             with patch(
                 "src.mcp_suite.servers.transcriber.service.assemblyai.logger"

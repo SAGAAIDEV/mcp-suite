@@ -71,6 +71,7 @@ class TestRedisStore:
 
         # Reset the global store
         import mcp_suite.models.redis_store
+
         mcp_suite.models.redis_store._store = None
 
         # Call function
@@ -103,6 +104,7 @@ class TestRedisStore:
         """Test getting Redis store with default configuration."""
         # Reset the global store
         import mcp_suite.models.redis_store
+
         mcp_suite.models.redis_store._store = None
 
         # Setup mock
@@ -145,6 +147,7 @@ class TestRedisStore:
 
         # Verify global store was reset
         import mcp_suite.models.redis_store
+
         assert mcp_suite.models.redis_store._store is None
 
     @pytest.mark.asyncio
@@ -152,6 +155,7 @@ class TestRedisStore:
         """Test closing the Redis store connection when no store exists."""
         # Reset the global store
         import mcp_suite.models.redis_store
+
         mcp_suite.models.redis_store._store = None
 
         # Should not raise an exception

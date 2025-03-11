@@ -48,9 +48,7 @@ async def test_post_with_image(mock_bluesky_service):
     image_data = b"fake_image_data"
     image_base64 = base64.b64encode(image_data).decode("utf-8")
 
-    result = await bluesky.post_with_image(
-        "Hello with image!", image_base64, "Alt text"
-    )
+    result = await bluesky.post_with_image("Hello with image!", image_base64, "Alt text")
 
     mock_bluesky_service.post_with_image.assert_called_once_with(
         "Hello with image!", image_data, "Alt text"
@@ -68,9 +66,7 @@ async def test_post_with_image_error(mock_bluesky_service):
 
     mock_bluesky_service.post_with_image.side_effect = Exception("Test error")
 
-    result = await bluesky.post_with_image(
-        "Hello with image!", image_base64, "Alt text"
-    )
+    result = await bluesky.post_with_image("Hello with image!", image_base64, "Alt text")
 
     mock_bluesky_service.post_with_image.assert_called_once_with(
         "Hello with image!", image_data, "Alt text"

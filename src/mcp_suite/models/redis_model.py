@@ -194,9 +194,7 @@ class RedisModel(PydanticRedisModel):
             results = await cls.select()
 
             if results:
-                logger.info(
-                    f"Loaded {len(results)} {cls.__name__} instances from Redis"
-                )
+                logger.info(f"Loaded {len(results)} {cls.__name__} instances from Redis")
                 return results
             else:
                 logger.debug(f"No {cls.__name__} instances found in Redis")

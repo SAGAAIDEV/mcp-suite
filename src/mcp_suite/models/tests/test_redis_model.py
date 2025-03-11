@@ -3,12 +3,12 @@ Tests for the RedisModel class.
 """
 
 from datetime import UTC, datetime
+from typing import Optional, TypeVar
 from unittest.mock import MagicMock, patch
 from uuid import UUID, uuid4
 
 import pytest
 from pydantic_redis.asyncio import Model as PydanticRedisModel
-from typing import Optional, TypeVar
 
 from mcp_suite.models.redis_model import RedisModel, T
 

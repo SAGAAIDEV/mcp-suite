@@ -1,6 +1,7 @@
 """
 Tests for the launch.py module.
 """
+
 import os
 from unittest.mock import MagicMock, patch
 
@@ -45,7 +46,10 @@ def test_main():
                         result = main()
 
                         # Verify the result
-                        assert result == "Hello from mcp-suite! Redis test: Hello from Redis!"
+                        assert (
+                            result
+                            == "Hello from mcp-suite! Redis test: Hello from Redis!"
+                        )
 
                         # Verify all setup functions were called
                         mock_setup.assert_called_once()
@@ -77,10 +81,15 @@ def test_main_redis_connection_failure():
                             result = main()
 
                             # Verify error was logged
-                            mock_logger.error.assert_called_with("Redis connection failed")
+                            mock_logger.error.assert_called_with(
+                                "Redis connection failed"
+                            )
 
                             # Verify the result
-                            assert result == "Hello from mcp-suite! (Redis connection failed)"
+                            assert (
+                                result
+                                == "Hello from mcp-suite! (Redis connection failed)"
+                            )
 
 
 def test_connect_to_redis():
@@ -152,12 +161,17 @@ def test_launch_redis_server_new_instance():
             with patch("time.sleep") as mock_sleep:
                 # Mock Redis not running initially, but running after launch
                 mock_redis_not_running = MagicMock()
-                mock_redis_not_running.ping.side_effect = redis.ConnectionError("Connection refused")
+                mock_redis_not_running.ping.side_effect = redis.ConnectionError(
+                    "Connection refused"
+                )
 
                 mock_redis_running = MagicMock()  # This one will succeed on ping
 
                 # Return different mock objects on each call to Redis()
-                mock_redis_class.side_effect = [mock_redis_not_running, mock_redis_running]
+                mock_redis_class.side_effect = [
+                    mock_redis_not_running,
+                    mock_redis_running,
+                ]
 
                 # Mock successful process launch
                 mock_process = MagicMock()
@@ -222,7 +236,9 @@ def test_launch_redis_server_connection_timeout():
                 mock_popen.return_value = mock_process
 
                 # Patch the retry loop to make it shorter
-                with patch("src.mcp_suite.redis.server.launch_redis_server") as mock_launch:
+                with patch(
+                    "src.mcp_suite.redis.server.launch_redis_server"
+                ) as mock_launch:
                     # Set up the mock to call the real function once, then return failure
                     # real_func = launch_redis_server
                     mock_launch.side_effect = lambda **kwargs: (False, mock_process)
@@ -281,7 +297,10 @@ def test_main_with_pytest_module():
                         result = main()
 
                         # Verify the result is the simplified version for pytest
-                        assert result == "Hello from mcp-suite! Redis test: Hello from Redis!"
+                        assert (
+                            result
+                            == "Hello from mcp-suite! Redis test: Hello from Redis!"
+                        )
 
 
 def test_main_redis_connection_failure_with_pytest():
