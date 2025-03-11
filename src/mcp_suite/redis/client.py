@@ -1,98 +1,113 @@
+"""Redis client module for MCP Suite."""
+
+import re
+import logging
+from typing import Optional, Tuple
+
 import redis
-import subprocess
-from unittest.mock import MagicMock, patch
+from src.config.env import REDIS
 
-import pytest
+# Initialize global Redis client
+redis_client = None
 
-# Import directly the functions under test
-from src.mcp_suite.redis.server import (
-    launch_redis_server,
-    parse_redis_url,
-    shutdown_redis_server,
-)
+def parse_redis_url(url: str) -> Tuple[str, int, Optional[str], int]:
+    """Parse Redis URL into components.
 
+    Args:
+        url: Redis URL in format redis://[:password@]host[:port][/db]
 
-@pytest.fixture(autouse=True)
-def mock_config_env_module(monkeypatch):
-    mock_redis_env = MagicMock()
-    mock_redis_env.URL = "redis://:testpassword@localhost:6379"
-    mock_env = MagicMock(REDIS=mock_redis_env)
-    mock_redis_env = MagicMock(URL="redis://:testpassword@localhost:6379")
-    with patch.dict("sys.modules", {"src.config.env": mock_env}):
-        yield
+    Returns:
+        Tuple containing host, port, password, and database number
+    """
+    # Handle database identifier with regex that accepts only digits
+    db_pattern = r"/(\d+)$"
+    db_match = re.search(db_pattern, url)
 
+    # Extract and remove the database part if it exists
+    db = 0
+    if db_match:
+        try:
+            db = int(db_match.group(1))
+            url = url[:db_match.start()]
+        except (ValueError, TypeError):
+            pass
 
-@pytest.fixture
-def mock_redis_client():
-    with patch("redis.Redis") as mock_redis:
-        instance = MagicMock()
-        instance.ping.return_value = True
-        mock_redis.return_value = mock_redis
-        yield mock_redis
+    # Handle the rest of the URL
+    pattern = r"redis://(?::([^@]*)@)?([^:/]+)(?::(\d+))?"
+    match = re.match(pattern, url)
 
+    if not match:
+        return "localhost", 6379, None, 0
 
-@pytest.fixture
-def mock_popen_success():
-    mock_proc = MagicMock(spec=subprocess.Popen)
-    mock_proc_attrs = {"poll.return_value": None, "communicate.return_value": ("", "")}
-    mock_proc = MagicMock(**mock_proc_attrs)
-    with patch("subprocess.Popen", return_value=mock_proc) as mock_popen:
-        yield mock_popen
+    password, host, port_str = match.groups()
 
+    port = int(port_str) if port_str else 6379
 
-def test_parse_redis_url():
-    url = "redis://:mypassword@127.0.0.1:6380"
-    host, port, password = parse_redis_url(url)
-    assert host == "127.0.0.1"
-    assert port == 6380
-    assert password == "mypassword"
+    return host, port, password, db
 
+def connect_to_redis(
+    host: Optional[str] = None,
+    port: Optional[int] = None,
+    password: Optional[str] = None,
+    db: Optional[int] = None,
+    url: Optional[str] = None,
+) -> Optional[redis.Redis]:
+    """Connect to Redis server.
 
-def test_parse_redis_url_defaults():
-    url = "redis://localhost"
-    host, port, password = parse_redis_url(url)
-    assert host == "localhost"
-    assert port == 6379
-    assert password is None
+    Args:
+        host: Redis host, defaults to value from config
+        port: Redis port, defaults to value from config
+        password: Redis password, defaults to value from config
+        db: Redis database number, defaults to 0
+        url: Redis URL, overrides other parameters if provided
 
+    Returns:
+        Redis client instance or None if connection fails
+    """
+    global redis_client
 
-def test_launch_redis_server_already_running(mock_redis_client):
-    mock_redis_instance = mock_redis_client.return_value
-    mock_redis_instance.ping.return_value = True
+    try:
+        if url is None and hasattr(REDIS, 'URL'):
+            url = REDIS.URL
 
-    success, process = launch_redis_server(port=6379, password="redispassword")
-    assert success is True
-    assert process is None
+        # If explicit parameters are passed, use them directly
+        if not all([host, port, password is not None, db is not None]) and url:
+            parsed_host, parsed_port, parsed_password, parsed_db = parse_redis_url(url)
+            host = host or parsed_host
+            port = port or parsed_port
+            # Only use parsed password if password wasn't explicitly set
+            if password is None:
+                password = parsed_password
+            # Only use parsed db if db wasn't explicitly set
+            if db is None:
+                db = parsed_db
 
+        # Create Redis client with the parameters
+        redis_client = redis.Redis(
+            host=host or "localhost",
+            port=port or 6379,
+            password=password,
+            db=db or 0,
+            decode_responses=True,
+        )
 
-def test_launch_redis_server_new_instance(mock_redis_client, mock_popen_success):
-    # Simulate Redis not running initially
-    mock_redis_client.return_value.ping.side_effect = redis.ConnectionError()
+        # Test connection
+        redis_client.ping()
+        logging.info(f"Connected to Redis at {host}:{port}")
+        return redis_client
 
-    success, process = launch_redis_server(port=6380, password="testpass")
-    assert success is True
-    assert process is not None
-    mock_popen_success.assert_called_once()
+    except Exception as e:
+        logging.error(f"Failed to connect to Redis: {str(e)}")
+        redis_client = None
+        return None
 
+def close_redis_connection() -> None:
+    """Close the Redis connection if it exists."""
+    global redis_client
 
-def test_launch_redis_server_failure(mock_redis_client):
-    with patch("subprocess.Popen") as mock_popen:
-        mock_proc = MagicMock()
-        mock_proc.poll.return_value = 1  # Non-zero means process failed immediately
-        mock_proc.communicate.return_value = ("", "Error starting Redis")
-        mock_popen.return_value = mock_proc
-
-        success, process = launch_redis_server()
-        assert success is False
-        assert process is None
-
-
-def test_shutdown_redis_server(mock_redis_client, mock_redis_popen_success):
-    global redis_process, redis_launched_by_us
-    redis_process = mock_redis_popen_success.return_value
-    redis_launched_by_us = True
-
-    shutdown_redis_server()
-
-    redis_process.terminate.assert_called_once()
-    assert redis_process is None
+    try:
+        if redis_client is not None:
+            redis_client.close()
+            logging.info("Redis connection closed")
+    except Exception as e:
+        logging.error(f"Error closing Redis connection: {str(e)}")
