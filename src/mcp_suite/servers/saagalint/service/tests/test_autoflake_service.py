@@ -7,7 +7,7 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from src.mcp_suite.servers.dev.service.autoflake_service import (
+from src.mcp_suite.servers.saagalint.service.autoflake_service import (
     process_autoflake_results,
 )
 

@@ -3,8 +3,8 @@
 import json
 from typing import Any, Dict, List
 
-from src.mcp_suite.servers.dev import logger  # Import logger directly from loguru
-from src.mcp_suite.servers.dev.models.coverage_models import (
+from src.mcp_suite.servers.saagalint import logger  # Import logger directly from loguru
+from src.mcp_suite.servers.saagalint.models.coverage_models import (
     BranchCoverage,
     CoverageIssue,
 )

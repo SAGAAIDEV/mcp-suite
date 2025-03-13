@@ -6,10 +6,10 @@ from unittest.mock import mock_open, patch
 import pytest
 
 # Import the centralized logger
-from src.mcp_suite.servers.dev import logger
+from src.mcp_suite.servers.saagalint import logger
 
 # Use absolute imports
-from src.mcp_suite.servers.dev.service.coverage_service import (
+from src.mcp_suite.servers.saagalint.service.coverage_service import (
     _process_section,
     process_coverage_json,
 )
@@ -24,7 +24,7 @@ logger.info("Test coverage service module tests starting.")
 def capture_logs():
     """Capture logs during a test."""
     with patch(
-        "src.mcp_suite.servers.dev.service.coverage_service.logger"
+        "src.mcp_suite.servers.saagalint.service.coverage_service.logger"
     ) as mock_logger:
         yield mock_logger
 
@@ -224,7 +224,7 @@ class TestCoverageService:
         # Simulate a generic exception during processing
         with patch("builtins.open", mock_open(read_data=mock_json)):
             with patch(
-                "src.mcp_suite.servers.dev.service.coverage_service._process_section",
+                "src.mcp_suite.servers.saagalint.service.coverage_service._process_section",
                 side_effect=Exception("Generic error"),
             ):
                 issues = process_coverage_json("fake_path.json")

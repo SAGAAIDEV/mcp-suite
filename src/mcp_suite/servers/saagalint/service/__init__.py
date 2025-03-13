@@ -3,7 +3,7 @@
 # Use absolute imports instead of relative imports
 
 # Import the centralized logger
-from src.mcp_suite.servers.dev import logger
+from src.mcp_suite.servers.saagalint import logger
 
 from .coverage_service import process_coverage_json
 from .pytest_service import process_pytest_results

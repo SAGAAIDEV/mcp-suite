@@ -1,15 +1,5 @@
 {
   "mcpServers": {
-    "pytest": {
-      "command": "uv",
-      "args": [
-        "--directory=/Users/andrew/saga/mcp-suite",
-        "run",
-        "python",
-        "-m",
-        "src.mcp_suite.servers.dev.servers.pytest"
-      ]
-    },
     "transcriber": {
       "command": "uv",
       "args": [
@@ -19,6 +9,9 @@
         "-m",
         "src.mcp_suite.servers.transcriber.servers.transcriber_server"
       ]
+    },
+    "saagalint": {
+      "url": "http://localhost:8081/sse"
     }
   }
 }

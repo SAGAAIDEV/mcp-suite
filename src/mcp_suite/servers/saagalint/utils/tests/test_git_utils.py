@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.mcp_suite.servers.dev.utils.git_utils import get_git_root
+from src.mcp_suite.servers.saagalint.utils.git_utils import get_git_root
 
 
 class TestGitUtils:
@@ -72,7 +72,7 @@ class TestGitUtils:
         with patch("pathlib.Path.resolve", return_value=mock_current_dir):
             # Exercise - call the function
             with patch(
-                "src.mcp_suite.servers.dev.logger.debug"
+                "src.mcp_suite.servers.saagalint.logger.debug"
             ):  # Suppress logger output
                 result = get_git_root()
 
@@ -98,11 +98,11 @@ class TestGitUtils:
 
         # Patch the __file__ attribute in the git_utils module
         with patch(
-            "src.mcp_suite.servers.dev.utils.git_utils.__file__", str(dummy_file)
+            "src.mcp_suite.servers.saagalint.utils.git_utils.__file__", str(dummy_file)
         ):
             # Exercise - call the function with real directory traversal
             with patch(
-                "src.mcp_suite.servers.dev.logger.debug"
+                "src.mcp_suite.servers.saagalint.logger.debug"
             ):  # Suppress logger output
                 result = get_git_root()
 

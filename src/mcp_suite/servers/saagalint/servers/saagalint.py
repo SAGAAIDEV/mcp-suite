@@ -5,10 +5,10 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-from mcp_suite.servers.dev.utils.decorators import exception_handler
+from mcp_suite.servers.saagalint.utils.decorators import exception_handler
 
 # Import logging configuration
-from src.mcp_suite.servers.dev import logger
+from src.mcp_suite.servers.saagalint import logger
 
 from ..service.autoflake_service import process_autoflake_results
 
@@ -22,7 +22,7 @@ from ..utils.git_utils import get_git_root
 # Configure logging
 
 
-mcp = FastMCP("pytest")
+mcp = FastMCP("precommit", settings={"host": "localhost", "port": "8081"})
 
 
 @mcp.tool()
@@ -233,7 +233,7 @@ async def run_autoflake(file_path: str = ".", fix: bool = True):
 
         logger.info("Autoflake fixes applied successfully")
 
-    # Delete any existing autoflake.json file to prevent appending issues
+    # Delete any existing autoflake.json file to prevent appenåding issues
     autoflake_report = git_root / "reports/autoflake.json"
     if autoflake_report.exists():
         autoflake_report.unlink()
@@ -317,6 +317,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Run the MCP server
     try:
-        mcp.run(transport="stdio")
+        mcp.settings.port = 8081
+        mcp.run(transport="sse")
     except Exception as e:
         logger.exception(f"Error running MCP server: {e}")

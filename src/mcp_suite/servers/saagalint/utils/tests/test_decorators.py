@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mcp_suite.servers.dev.utils.decorators import exception_handler
+from mcp_suite.servers.saagalint.utils.decorators import exception_handler
 
 
 class TestExceptionHandler:
@@ -40,9 +40,9 @@ class TestExceptionHandler:
 
         # Mock the logger and ExceptionData
         with (
-            patch("mcp_suite.servers.dev.utils.decorators.logger") as mock_logger,
+            patch("mcp_suite.servers.saagalint.utils.decorators.logger") as mock_logger,
             patch(
-                "mcp_suite.servers.dev.models.exception_data.ExceptionData."
+                "mcp_suite.servers.saagalint.models.exception_data.ExceptionData."
                 "from_exception"
             ) as mock_from_exception,
         ):
@@ -97,7 +97,9 @@ class TestExceptionHandler:
             raise TypeError("Test type error")
 
         # Mock the logger
-        with patch("mcp_suite.servers.dev.utils.decorators.logger") as mock_logger:
+        with patch(
+            "mcp_suite.servers.saagalint.utils.decorators.logger"
+        ) as mock_logger:
             # Call the function (we don't care about the result)
             sample_function()
 
@@ -132,9 +134,9 @@ class TestExceptionHandler:
 
         # Mock the logger and ExceptionData
         with (
-            patch("mcp_suite.servers.dev.utils.decorators.logger") as mock_logger,
+            patch("mcp_suite.servers.saagalint.utils.decorators.logger") as mock_logger,
             patch(
-                "mcp_suite.servers.dev.models.exception_data.ExceptionData."
+                "mcp_suite.servers.saagalint.models.exception_data.ExceptionData."
                 "from_exception"
             ) as mock_from_exception,
         ):
@@ -199,7 +201,9 @@ class TestExceptionHandler:
             raise IndexError("Test index error")
 
         # Mock the logger
-        with patch("mcp_suite.servers.dev.utils.decorators.logger") as mock_logger:
+        with patch(
+            "mcp_suite.servers.saagalint.utils.decorators.logger"
+        ) as mock_logger:
             # Call the function (we don't care about the result)
             await sample_async_function()
 

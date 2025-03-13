@@ -44,8 +44,8 @@ import json
 import sys
 from typing import Callable, List, Type, TypeVar
 
-from mcp_suite.servers.dev.models.exception_data import ExceptionData
-from src.mcp_suite.servers.dev import log_file, logger
+from mcp_suite.servers.saagalint.models.exception_data import ExceptionData
+from src.mcp_suite.servers.saagalint import log_file, logger
 
 # Define a generic type for the return value
 T = TypeVar("T")

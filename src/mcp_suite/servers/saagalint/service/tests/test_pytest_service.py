@@ -3,11 +3,13 @@
 import json
 from unittest.mock import mock_open, patch
 
-from src.mcp_suite.servers.dev.config import ReportPaths
-from src.mcp_suite.servers.dev.models.pytest_models import (
+from src.mcp_suite.servers.saagalint.config import ReportPaths
+from src.mcp_suite.servers.saagalint.models.pytest_models import (
     PytestResults,
 )
-from src.mcp_suite.servers.dev.service.pytest_service import process_pytest_results
+from src.mcp_suite.servers.saagalint.service.pytest_service import (
+    process_pytest_results,
+)
 
 
 class TestProcessPytestResults:

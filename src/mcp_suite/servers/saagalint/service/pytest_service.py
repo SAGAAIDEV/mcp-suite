@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import Union
 
 # Replace direct loguru import with import from dev package
-from src.mcp_suite.servers.dev import logger
-from src.mcp_suite.servers.dev.config import ReportPaths
-from src.mcp_suite.servers.dev.models.pytest_models import (
+from src.mcp_suite.servers.saagalint import logger
+from src.mcp_suite.servers.saagalint.config import ReportPaths
+from src.mcp_suite.servers.saagalint.models.pytest_models import (
     PytestCollectionFailure,
     PytestFailedTest,
     PytestResults,
