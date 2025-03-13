@@ -27,7 +27,8 @@ def mock_redis_operations():
 
     # Mock load_from_redis_before_init to prevent Redis loading
     with patch(
-        "mcp_suite.base.models.redis_singleton.RedisSingleton.load_from_redis_before_init"
+        "mcp_suite.base.models.redis_singleton.RedisSingleton."
+        "load_from_redis_before_init"
     ) as mock_load:
         # Just return the data passed to it (no Redis loading)
         mock_load.side_effect = lambda data: data

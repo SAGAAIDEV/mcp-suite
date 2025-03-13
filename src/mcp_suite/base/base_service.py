@@ -19,7 +19,7 @@ from pydantic import (
     model_validator,
 )
 
-from mcp_suite.base.models.redis_singleton import RedisSingleton
+from mcp_suite.base.redis.redis_singleton import RedisSingleton
 
 
 class CredentialType(str, Enum):

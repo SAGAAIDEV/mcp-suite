@@ -195,6 +195,7 @@ class TestClassifierFunctions:
             model_name="test-model",
             temperature=0.5,
             batch_size=5,
+            prompt_template=None,
         )
 
         # Assert the model was initialized correctly
@@ -232,6 +233,33 @@ class TestClassifierFunctions:
         assert result[1]["end"] == 2000
         assert result[1]["classification"].relevant is False
         assert result[1]["classification"].reasoning == "Not informative"
+
+    @pytest.mark.asyncio
+    @patch("mcp_suite.servers.av.lib.classifier.ChatAnthropic")
+    async def test_classify_transcript_paragraphs_custom_prompt(
+        self, mock_chat_anthropic, mock_transcript, mock_runnable
+    ):
+        """Test the classify_transcript_paragraphs function with custom prompt."""
+        # Configure the mock to return our mock runnable
+        chat_instance = mock_chat_anthropic.return_value
+        chat_instance.with_structured_output.return_value = mock_runnable
+
+        # Call the function with custom prompt template
+        custom_prompt = "Custom prompt with {text}"
+        _ = await classify_transcript_paragraphs(
+            transcript=mock_transcript,
+            model_name="test-model",
+            temperature=0.5,
+            batch_size=5,
+            prompt_template=custom_prompt,
+        )
+
+        # Assert the runnable.abatch was called with custom prompts
+        expected_prompts = [
+            custom_prompt.format(text="This is the first paragraph."),
+            custom_prompt.format(text="This is the second paragraph."),
+        ]
+        mock_runnable.abatch.assert_called_once_with(expected_prompts)
 
     @pytest.mark.asyncio
     @patch("mcp_suite.servers.av.lib.classifier.ChatAnthropic")

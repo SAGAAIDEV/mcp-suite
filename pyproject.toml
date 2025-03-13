@@ -9,7 +9,10 @@ dependencies = [
     "atproto>=0.0.59",
     "autoflake>=2.3.1",
     "autopep8>=2.3.2",
+    "black>=25.1.0",
     "cookiecutter>=2.6.0",
+    "flake8-json>=24.4.0",
+    "flake8-pyproject>=1.2.3",
     "hatchling>=1.27.0",
     "ipykernel>=6.29.5",
     "langchain-anthropic>=0.3.9",
@@ -68,6 +71,8 @@ disallow_untyped_defs = true
 disallow_incomplete_defs = true
 namespace_packages = true
 explicit_package_bases = true
+
+
 
 [dependency-groups]
 dev = [

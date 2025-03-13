@@ -41,6 +41,7 @@ class Singleton(BaseModel):
 
     # Class variables
     _instances: ClassVar[Dict[Type, Any]] = {}
+    model_config = {"arbitrary_types_allowed": True}
 
     def __new__(cls, **kwargs):
         """
@@ -109,3 +110,5 @@ class Singleton(BaseModel):
         if cls in cls._instances:
             del cls._instances[cls]
             logger.debug(f"Reset singleton instance of {cls.__name__}")
+            return True
+        return False

@@ -6,11 +6,8 @@ from urllib.parse import urlparse
 
 from loguru import logger
 
+from mcp_suite.base.redis.utils import configure_logger, setup_directories
 from src.config.env import REDIS
-from src.mcp_suite.redis.cleanup import register_cleanup_handlers
-from src.mcp_suite.redis.client import connect_to_redis
-from src.mcp_suite.redis.server import launch_redis_server
-from src.mcp_suite.redis.utils import configure_logger, setup_directories
 
 
 def parse_redis_url(url: str) -> tuple:
@@ -51,39 +48,40 @@ def main() -> str:
 
     logger.info("Starting MCP Suite")
 
-    # Register cleanup handlers
-    register_cleanup_handlers()
-
     # Parse Redis URL from environment config
     host, port, password, db = parse_redis_url(REDIS.URL)
 
-    # Launch Redis server if it doesn't exist
-    success, process = launch_redis_server(
-        port=port, password=password, appendonly=True, keyspace_events="KEA"
-    )
+    # Launch Redis server if it doesn't exist - REMOVED
+    # success, process = launch_redis_server(
+    #     port=port, password=password, appendonly=True, keyspace_events="KEA"
+    # )
 
-    if not success:
-        logger.warning("Could not launch Redis server, attempting to connect anyway")
+    # if not success:
+    #     logger.warning("Could not launch Redis server, attempting to connect anyway")
 
-    # Connect to Redis with the specified configuration
-    redis_client = connect_to_redis(host=host, port=port, password=password, db=db)
+    # Connect to Redis with the specified configuration - REMOVED
+    # redis_client = connect_to_redis(host=host, port=port, password=password, db=db)
 
-    if redis_client:
-        # Store a test value
-        redis_client.set("mcp_suite_test", "Hello from Redis!")
-        # Retrieve the test value
-        redis_value = redis_client.get("mcp_suite_test")
-        logger.info(f"Successfully retrieved test value from Redis: {redis_value}")
+    # Simplified version without Redis connection
+    logger.info("Redis functionality has been removed or restructured")
+    return "Hello from mcp-suite! (Redis functionality has been restructured)"
 
-        # For tests, just return a simple message
+    # if redis_client:
+    #     # Store a test value
+    #     redis_client.set("mcp_suite_test", "Hello from Redis!")
+    #     # Retrieve the test value
+    #     redis_value = redis_client.get("mcp_suite_test")
+    #     logger.info(f"Successfully retrieved test value from Redis: {redis_value}")
 
-        # For normal operation, include Redis test info
-        return f"Hello from mcp-suite! Redis test: {redis_value}"
-    else:
-        logger.error("Redis connection failed")
+    #     # For tests, just return a simple message
 
-        # For normal operation, include Redis failure info
-        return "Hello from mcp-suite! (Redis connection failed)"
+    #     # For normal operation, include Redis test info
+    #     return f"Hello from mcp-suite! Redis test: {redis_value}"
+    # else:
+    #     logger.error("Redis connection failed")
+
+    #     # For normal operation, include Redis failure info
+    #     return "Hello from mcp-suite! (Redis connection failed)"
 
 
 if __name__ == "__main__":  # pragma: no cover

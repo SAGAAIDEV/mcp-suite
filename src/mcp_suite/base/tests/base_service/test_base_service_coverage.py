@@ -142,7 +142,8 @@ class TestAccountOperations:
                 assert result is False
 
     def test_account_dict_conversion(self):
-        """Test that accounts provided as dictionaries are properly validated and converted."""
+        """Test that accounts provided as dictionaries are properly validated
+        and converted."""
         # Create a dictionary representation of an account with credentials
         account_dict = {
             "name": "Dict Account",

@@ -1,13 +1,23 @@
 {
   "mcpServers": {
-    "bluesky": {
+    "pytest": {
       "command": "uv",
       "args": [
         "--directory=/Users/andrew/saga/mcp-suite",
         "run",
         "python",
         "-m",
-        "src.mcp_suite.servers.bluesky_mcp_server.server.bluesky"
+        "src.mcp_suite.servers.dev.servers.pytest"
+      ]
+    },
+    "transcriber": {
+      "command": "uv",
+      "args": [
+        "--directory=/Users/andrew/saga/mcp-suite",
+        "run",
+        "python",
+        "-m",
+        "src.mcp_suite.servers.transcriber.servers.transcriber_server"
       ]
     }
   }

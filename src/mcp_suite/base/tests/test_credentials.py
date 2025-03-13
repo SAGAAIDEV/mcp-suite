@@ -1,7 +1,8 @@
 """Tests for the Credentials class."""
 
 # Mock the RedisSingleton import in base_service.py
-# This is needed because base_service.py imports RedisSingleton but we don't need it for testing Credentials
+# This is needed because base_service.py imports RedisSingleton
+# but we don't need it for testing Credentials
 import sys
 from datetime import datetime
 from unittest.mock import MagicMock, patch
@@ -133,7 +134,8 @@ class TestCredentials:
         assert credentials.oauth_token == "token123"
 
     def test_email_validation_raises_error(self):
-        """Test that creating EMAIL_PASSWORD credentials without email raises ValueError."""
+        """Test that creating EMAIL_PASSWORD credentials without email
+        raises ValueError."""
         with pytest.raises(
             ValueError, match="Email is required for EMAIL_PASSWORD credential type"
         ):
