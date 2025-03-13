@@ -36,7 +36,7 @@ class TestRedisSingleton:
         RedisSingleton._is_loading = False
 
     # Define a test model class for use in tests
-    class TestModel(RedisSingleton):
+    class MockModel(RedisSingleton):
         """Test model for RedisSingleton tests."""
 
         name: str = "default_name"
@@ -45,7 +45,7 @@ class TestRedisSingleton:
     def test_initialization(self):
         """Test that RedisSingleton initializes correctly with proper fields."""
         # Create a new instance
-        model = self.TestModel(name="test", value=42)
+        model = self.MockModel(name="test", value=42)
 
         # Check that the fields are set correctly
         assert model.name == "test"
@@ -58,7 +58,7 @@ class TestRedisSingleton:
         assert isinstance(model.updated_at, (datetime, str))
 
         # Check that it's a singleton
-        model2 = self.TestModel(name="another")
+        model2 = self.MockModel(name="another")
         assert model is model2
         assert model2.name == "another"  # Should be updated
         assert model2.value == 42  # Should retain the previous value
@@ -69,7 +69,7 @@ class TestRedisSingleton:
         test_time = datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC)
 
         # Create a model with the fixed datetime
-        model = self.TestModel(name="test", created_at=test_time, updated_at=test_time)
+        model = self.MockModel(name="test", created_at=test_time, updated_at=test_time)
 
         # Test the serializer directly
         serialized = model.serialize_all_datetimes(test_time, None)
@@ -82,16 +82,16 @@ class TestRedisSingleton:
     def test_get_repository(self):
         """Test that get_repository returns a RedisRepository instance."""
         # Call the method
-        repo = self.TestModel.get_repository()
+        repo = self.MockModel.get_repository()
 
         # Check that it's a RedisRepository
         assert isinstance(repo, RedisRepository)
 
         # Check that it's cached
-        assert self.TestModel._repository is repo
+        assert self.MockModel._repository is repo
 
         # Call again and check that it returns the same instance
-        repo2 = self.TestModel.get_repository()
+        repo2 = self.MockModel.get_repository()
         assert repo is repo2
 
     @patch.object(RedisRepository, "save")
@@ -101,7 +101,7 @@ class TestRedisSingleton:
         mock_save.return_value = True
 
         # Create a model
-        model = self.TestModel(name="test")
+        model = self.MockModel(name="test")
         original_updated_at = model.updated_at
 
         # Save the model
@@ -135,7 +135,7 @@ class TestRedisSingleton:
         mock_save.side_effect = Exception("Test exception")
 
         # Create a model
-        model = self.TestModel(name="test")
+        model = self.MockModel(name="test")
 
         # Save the model
         result = model.save()
@@ -159,14 +159,14 @@ class TestRedisSingleton:
         )
 
         # Load the model
-        model = self.TestModel.load()
+        model = self.MockModel.load()
 
         # Check that the repository's exists and load methods were called
-        mock_exists.assert_called_once_with(self.TestModel)
-        mock_load.assert_called_once_with(self.TestModel)
+        mock_exists.assert_called_once_with(self.MockModel)
+        mock_load.assert_called_once_with(self.MockModel)
 
         # Check that a model instance was returned
-        assert isinstance(model, self.TestModel)
+        assert isinstance(model, self.MockModel)
         assert model.name == "loaded"
         assert model.value == 99
 
@@ -177,10 +177,10 @@ class TestRedisSingleton:
         mock_exists.return_value = False
 
         # Load the model
-        model = self.TestModel.load()
+        model = self.MockModel.load()
 
         # Check that the repository's exists method was called
-        mock_exists.assert_called_once_with(self.TestModel)
+        mock_exists.assert_called_once_with(self.MockModel)
 
         # Check that None was returned
         assert model is None
@@ -194,11 +194,11 @@ class TestRedisSingleton:
         mock_load.return_value = None
 
         # Load the model
-        model = self.TestModel.load()
+        model = self.MockModel.load()
 
         # Check that the repository's exists and load methods were called
-        mock_exists.assert_called_once_with(self.TestModel)
-        mock_load.assert_called_once_with(self.TestModel)
+        mock_exists.assert_called_once_with(self.MockModel)
+        mock_load.assert_called_once_with(self.MockModel)
 
         # Check that None was returned
         assert model is None
@@ -212,11 +212,11 @@ class TestRedisSingleton:
         mock_load.side_effect = Exception("Test exception")
 
         # Load the model
-        model = self.TestModel.load()
+        model = self.MockModel.load()
 
         # Check that the repository's exists and load methods were called
-        mock_exists.assert_called_once_with(self.TestModel)
-        mock_load.assert_called_once_with(self.TestModel)
+        mock_exists.assert_called_once_with(self.MockModel)
+        mock_load.assert_called_once_with(self.MockModel)
 
         # Check that None was returned
         assert model is None
@@ -228,10 +228,10 @@ class TestRedisSingleton:
         mock_delete.return_value = True
 
         # Delete the model
-        result = self.TestModel.delete()
+        result = self.MockModel.delete()
 
         # Check that the repository's delete method was called
-        mock_delete.assert_called_once_with(self.TestModel)
+        mock_delete.assert_called_once_with(self.MockModel)
 
         # Check that the result is True
         assert result is True
@@ -243,10 +243,10 @@ class TestRedisSingleton:
         mock_exists.return_value = True
 
         # Check if the model exists
-        result = self.TestModel.exists()
+        result = self.MockModel.exists()
 
         # Check that the repository's exists method was called
-        mock_exists.assert_called_once_with(self.TestModel)
+        mock_exists.assert_called_once_with(self.MockModel)
 
         # Check that the result is True
         assert result is True
@@ -254,18 +254,18 @@ class TestRedisSingleton:
     def test_is_loading_flag(self):
         """Test that the _is_loading flag prevents recursive operations."""
         # Set the loading flag
-        self.TestModel._is_loading = True
+        self.MockModel._is_loading = True
 
         # Mock the exists method to return True
         with patch.object(RedisRepository, "exists", return_value=True):
             # Try to load the model
-            model = self.TestModel.load()
+            model = self.MockModel.load()
 
             # Check that None was returned
             assert model is None
 
         # Reset the loading flag
-        self.TestModel._is_loading = False
+        self.MockModel._is_loading = False
 
         # Mock the exists and load methods
         with (
@@ -277,7 +277,7 @@ class TestRedisSingleton:
             ),
         ):
             # Load the model
-            model = self.TestModel.load()
+            model = self.MockModel.load()
 
             # Check that a model was returned
             assert model is not None

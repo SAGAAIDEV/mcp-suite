@@ -9,7 +9,7 @@ from mcp_suite.base.redis.redis_manager import RedisManager
 from mcp_suite.base.redis.repository import RedisRepository
 
 
-class TestModel(BaseModel):
+class MockModel(BaseModel):
     """Test model for repository tests."""
 
     name: str
@@ -40,14 +40,14 @@ def test_get_redis_manager(mock_redis_manager_class):
 def test_get_key_method(mock_from_url):
     """Test the _get_key method of RedisRepository."""
     # Create a repository instance
-    repo = RedisRepository(TestModel, prefix="test_prefix")
+    repo = RedisRepository(MockModel, prefix="test_prefix")
 
     # Test the _get_key method
-    key = repo._get_key(TestModel)
+    key = repo._get_key(MockModel)
 
     # Verify the key format
     assert key.startswith("test_prefix:")
-    assert "TestModel" in key
+    assert "MockModel" in key
 
 
 @patch("redis.Redis.from_url")
@@ -75,8 +75,8 @@ def test_save_model():
     mock_redis = MagicMock()
 
     # Create repository and model
-    repo = RedisRepository(TestModel)
-    model = TestModel(name="test", value=123)
+    repo = RedisRepository(MockModel)
+    model = MockModel(name="test", value=123)
 
     # Mock the get_redis method
     repo.get_redis = MagicMock(return_value=mock_redis)
@@ -118,8 +118,8 @@ def test_save_model_exception():
     mock_redis.set.side_effect = Exception("Test exception")
 
     # Create repository and model
-    repo = RedisRepository(TestModel)
-    model = TestModel(name="test", value=123)
+    repo = RedisRepository(MockModel)
+    model = MockModel(name="test", value=123)
 
     # Mock the get_redis method
     repo.get_redis = MagicMock(return_value=mock_redis)
@@ -145,14 +145,14 @@ def test_load_model():
     mock_redis.get.return_value = '{"name": "test", "value": 123}'
 
     # Create repository and model class
-    repo = RedisRepository(TestModel)
+    repo = RedisRepository(MockModel)
 
     # Mock the get_redis method
     repo.get_redis = MagicMock(return_value=mock_redis)
 
     try:
         # Load model
-        result = repo.load(TestModel)
+        result = repo.load(MockModel)
 
         # Verify correct methods were called
         mock_redis.get.assert_called_once()
@@ -171,14 +171,14 @@ def test_load_model_exception():
     mock_redis.get.side_effect = Exception("Test exception")
 
     # Create repository and model class
-    repo = RedisRepository(TestModel)
+    repo = RedisRepository(MockModel)
 
     # Mock the get_redis method
     repo.get_redis = MagicMock(return_value=mock_redis)
 
     try:
         # Load model should return False when an exception occurs
-        result = repo.load(TestModel)
+        result = repo.load(MockModel)
 
         # Verify correct methods were called
         mock_redis.get.assert_called_once()
@@ -196,14 +196,14 @@ def test_delete_model():
     mock_redis = MagicMock()
 
     # Create repository
-    repo = RedisRepository(TestModel)
+    repo = RedisRepository(MockModel)
 
     # Mock the get_redis method
     repo.get_redis = MagicMock(return_value=mock_redis)
 
     try:
         # Delete model
-        result = repo.delete(TestModel)
+        result = repo.delete(MockModel)
 
         # Verify correct methods were called
         mock_redis.delete.assert_called_once()
@@ -222,14 +222,14 @@ def test_delete_model_exception():
     mock_redis.delete.side_effect = Exception("Test exception")
 
     # Create repository
-    repo = RedisRepository(TestModel)
+    repo = RedisRepository(MockModel)
 
     # Mock the get_redis method
     repo.get_redis = MagicMock(return_value=mock_redis)
 
     try:
         # Delete model should return False when an exception occurs
-        result = repo.delete(TestModel)
+        result = repo.delete(MockModel)
 
         # Verify correct methods were called
         mock_redis.delete.assert_called_once()
@@ -248,14 +248,14 @@ def test_exists_model():
     mock_redis.exists.return_value = 1  # Key exists
 
     # Create repository
-    repo = RedisRepository(TestModel)
+    repo = RedisRepository(MockModel)
 
     # Mock the get_redis method
     repo.get_redis = MagicMock(return_value=mock_redis)
 
     try:
         # Check if model exists
-        result = repo.exists(TestModel)
+        result = repo.exists(MockModel)
 
         # Verify correct methods were called
         mock_redis.exists.assert_called_once()
@@ -274,14 +274,14 @@ def test_exists_model_not_found():
     mock_redis.exists.return_value = 0  # Key doesn't exist
 
     # Create repository
-    repo = RedisRepository(TestModel)
+    repo = RedisRepository(MockModel)
 
     # Mock the get_redis method
     repo.get_redis = MagicMock(return_value=mock_redis)
 
     try:
         # Check if model exists
-        result = repo.exists(TestModel)
+        result = repo.exists(MockModel)
 
         # Verify correct methods were called
         mock_redis.exists.assert_called_once()
@@ -300,14 +300,14 @@ def test_exists_model_exception():
     mock_redis.exists.side_effect = Exception("Test exception")
 
     # Create repository
-    repo = RedisRepository(TestModel)
+    repo = RedisRepository(MockModel)
 
     # Mock the get_redis method
     repo.get_redis = MagicMock(return_value=mock_redis)
 
     try:
         # Check if model exists should return False when an exception occurs
-        result = repo.exists(TestModel)
+        result = repo.exists(MockModel)
 
         # Verify correct methods were called
         mock_redis.exists.assert_called_once()

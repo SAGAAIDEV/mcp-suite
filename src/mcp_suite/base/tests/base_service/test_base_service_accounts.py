@@ -1,4 +1,4 @@
-"""Tests for the account management functionality of BaseService."""
+"""Tests for account management in BaseService."""
 
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -17,7 +17,7 @@ from mcp_suite.base.base_service import (
 
 
 # Create a testable version of BaseService
-class TestableBaseService(BaseService):
+class MockBaseService(BaseService):
     """A testable version of BaseService with mocked Redis methods."""
 
     service_type: str = "test_service"
@@ -52,8 +52,8 @@ def test_account(test_credentials):
 def basic_service():
     """Create a basic service for testing."""
     # Ensure we use a new instance for each test
-    TestableBaseService.reset_instance()
-    service = TestableBaseService(service_type="test_service")
+    MockBaseService.reset_instance()
+    service = MockBaseService(service_type="test_service")
     return service
 
 
@@ -67,7 +67,7 @@ def service_with_account(basic_service, test_account):
 class TestAccountManagement:
     """Test suite for account management functionality."""
 
-    @patch.object(TestableBaseService, "save", new_callable=AsyncMock)
+    @patch.object(MockBaseService, "save", new_callable=Mock)
     def test_add_account(self, mock_save, basic_service, test_account):
         """Test adding an account to a service."""
         # Set up mock
@@ -84,7 +84,7 @@ class TestAccountManagement:
         # Verify save was called
         mock_save.assert_called_once()
 
-    @patch.object(TestableBaseService, "save", new_callable=Mock)
+    @patch.object(MockBaseService, "save", new_callable=Mock)
     def test_add_account_failure(self, mock_save, basic_service, test_account):
         """Test handling failure when adding an account."""
         # Set up mock to fail
@@ -99,7 +99,7 @@ class TestAccountManagement:
         # Verify save was called
         mock_save.assert_called_once()
 
-    @patch.object(TestableBaseService, "save", new_callable=Mock)
+    @patch.object(MockBaseService, "save", new_callable=Mock)
     def test_remove_account(self, mock_save, service_with_account, test_account):
         """Test removing an account from a service."""
         # Set up mock
@@ -119,7 +119,7 @@ class TestAccountManagement:
         # mock_save.assert_called_once()
 
     @pytest.mark.asyncio
-    @patch.object(TestableBaseService, "save", new_callable=Mock)
+    @patch.object(MockBaseService, "save", new_callable=Mock)
     async def test_remove_account_failure(self, mock_save, service_with_account):
         """Test handling failure when removing an account."""
         # Set up mock to fail
@@ -137,7 +137,7 @@ class TestAccountManagement:
 
     # mock_save.assert_called_once()
 
-    @patch.object(TestableBaseService, "save", new_callable=Mock)
+    @patch.object(MockBaseService, "save", new_callable=Mock)
     def test_set_active_account(self, mock_save, service_with_account, test_account):
         """Test setting an active account."""
         # Set up mock
@@ -153,7 +153,7 @@ class TestAccountManagement:
         # Verify save was called
         # mock_save.assert_called_once()
 
-    @patch.object(TestableBaseService, "save", new_callable=Mock)
+    @patch.object(MockBaseService, "save", new_callable=Mock)
     def test_set_nonexistent_account(self, mock_save, basic_service):
         """Test attempting to set a non-existent account as active."""
         # Set up mock
@@ -166,7 +166,7 @@ class TestAccountManagement:
         # Verify results
         assert result is False
 
-    @patch.object(TestableBaseService, "save", new_callable=Mock)
+    @patch.object(MockBaseService, "save", new_callable=Mock)
     def test_get_accounts_empty(self, mock_save, basic_service):
         """Test retrieving account information when no accounts exist."""
         mock_save.return_value = True
@@ -176,7 +176,7 @@ class TestAccountManagement:
         assert isinstance(accounts_info, list)
         assert len(accounts_info) == 1
 
-    @patch.object(TestableBaseService, "save", new_callable=Mock)
+    @patch.object(MockBaseService, "save", new_callable=Mock)
     def test_get_accounts(self, mock_save, service_with_account, test_account):
         """Test retrieving account information with one account."""
         mock_save.return_value = True
@@ -195,7 +195,7 @@ class TestAccountManagement:
         assert accounts_info[0]["is_service_active"] is True
         assert accounts_info[0]["is_active"] is True
 
-    @patch.object(TestableBaseService, "save", new_callable=AsyncMock)
+    @patch.object(MockBaseService, "save", new_callable=AsyncMock)
     def test_get_accounts_multiple(self, mock_save, basic_service, test_credentials):
         """Test retrieving information for multiple accounts."""
         mock_save.return_value = True
