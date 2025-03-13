@@ -166,3 +166,34 @@ class TestCoverageIssue:
         key, value = issue.to_dict_entry()
         assert key == "file.py:function"
         assert value == {}
+
+    def test_len(self):
+        """Test the __len__ method."""
+        # Test with both missing lines and branches
+        issue = CoverageIssue(
+            file_path="file.py",
+            section_name="function",
+            missing_lines=[1, 2, 3],
+            missing_branches=[BranchCoverage(source=1, target=2)],
+        )
+        assert len(issue) == 4  # 3 lines + 1 branch
+
+        # Test with only missing lines
+        issue = CoverageIssue(
+            file_path="file.py",
+            section_name="function",
+            missing_lines=[1, 2, 3],
+        )
+        assert len(issue) == 3
+
+        # Test with only missing branches
+        issue = CoverageIssue(
+            file_path="file.py",
+            section_name="function",
+            missing_branches=[BranchCoverage(source=1, target=2)],
+        )
+        assert len(issue) == 1
+
+        # Test with no missing lines or branches
+        issue = CoverageIssue(file_path="file.py", section_name="function")
+        assert len(issue) == 0

@@ -53,7 +53,13 @@ python_classes = "Test*"
 
 [tool.coverage.run]
 source = ["src"]
-omit = ["tests/*", "**/__main__.py"]
+omit = [
+    "tests/*",
+    "**/__main__.py",
+    "**/tests/**",
+    "**/test_*.py",
+    "**/*_test.py"
+]
 
 [tool.black]
 line-length = 88
