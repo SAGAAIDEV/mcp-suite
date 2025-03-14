@@ -11,7 +11,15 @@
       ]
     },
     "saagalint": {
-      "url": "http://localhost:8081/sse"
+      "command": "uv",
+      "args": [
+        "--directory=/Users/andrew/saga/mcp-suite",
+        "run",
+        "python",
+        "-m",
+        "src.mcp_suite.servers.saagalint.servers.saagalint",
+        "stdio"
+      ]
     }
   }
 }
