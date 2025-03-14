@@ -5,8 +5,12 @@ from pathlib import Path
 from typing import Any, Dict, Union
 
 # Import logger from dev package
-from mcp_suite.servers.saagalint import logger
+from mcp_suite.servers.saagalint import logger as main_logger
 from mcp_suite.servers.saagalint.config import ReportPaths
+from mcp_suite.servers.saagalint.utils.logging_utils import get_component_logger
+
+# Get a component-specific logger
+logger = get_component_logger("autoflake_service")
 
 
 def process_autoflake_results(
@@ -22,6 +26,7 @@ def process_autoflake_results(
         Dictionary containing summary and issues
     """
     logger.info(f"Processing autoflake results from {input_file}")
+    main_logger.info(f"Processing autoflake results from {input_file}")
 
     # Convert string paths to Path objects if needed
     input_path = Path(input_file) if isinstance(input_file, str) else input_file
@@ -30,6 +35,7 @@ def process_autoflake_results(
         # Check if the file exists
         if not input_path.exists():
             logger.warning(f"Autoflake results file not found: {input_path}")
+            main_logger.warning(f"Autoflake results file not found: {input_path}")
             return {
                 "Status": "Success",
                 "Message": "No issues found (results file not present).",
@@ -51,6 +57,7 @@ def process_autoflake_results(
         # If no issues found, return success
         if not all_issues:
             logger.info("No autoflake issues found")
+            main_logger.info("No autoflake issues found in results file")
             return {
                 "Status": "Success",
                 "Message": (
@@ -66,8 +73,8 @@ def process_autoflake_results(
         first_issue = all_issues[0]
 
         # Extract relevant information
-
         logger.info(f"Found autoflake issue: {json.dumps(first_issue, indent=2)}")
+        main_logger.warning("Found autoflake issues in results file")
 
         return {
             "Status": "Issues Found",
@@ -81,6 +88,7 @@ def process_autoflake_results(
     except json.JSONDecodeError as e:
         error_msg = f"Error: Invalid JSON in {input_path}: {str(e)}"
         logger.error(error_msg)
+        main_logger.error(error_msg)
         return {
             "Status": "Error",
             "Message": error_msg,
@@ -93,6 +101,7 @@ def process_autoflake_results(
     except Exception as e:
         error_msg = f"Error processing autoflake results: {str(e)}"
         logger.exception(error_msg)
+        main_logger.exception(error_msg)
         return {
             "Status": "Error",
             "Message": error_msg,
