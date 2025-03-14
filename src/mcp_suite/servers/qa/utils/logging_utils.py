@@ -18,6 +18,7 @@ def setup_component_logger(
 
     This function creates a logger instance for a specific component,
     with output to both the console and a component-specific log file.
+    The log file is overwritten on each run.
 
     Args:
         component_name: The name of the component (e.g., 'pytest', 'coverage')
@@ -37,7 +38,7 @@ def setup_component_logger(
     # Create a new logger instance
     component_logger = logger.bind(component=component_name)
 
-    # Add file handler with rotation
+    # Add file handler with rotation and mode="w" to overwrite the file on each run
     component_logger.add(
         log_file,
         level=log_level,
@@ -45,6 +46,7 @@ def setup_component_logger(
         "{extra[component]} | {name}:{function}:{line} - {message}",
         rotation=rotation,
         diagnose=True,
+        mode="w",  # Overwrite the file on each run
     )
 
     component_logger.info(
