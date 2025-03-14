@@ -9,7 +9,7 @@ import pytest
 from mcp_suite.servers.qa import logger
 
 # Use absolute imports
-from mcp_suite.servers.qa.service.coverage_service import (
+from mcp_suite.servers.qa.service.coverage import (
     _process_section,
     process_coverage_json,
 )
@@ -23,7 +23,7 @@ logger.info("Test coverage service module tests starting.")
 @pytest.fixture
 def capture_logs():
     """Capture logs during a test."""
-    with patch("mcp_suite.servers.qa.service.coverage_service.logger") as mock_logger:
+    with patch("mcp_suite.servers.qa.service.coverage.logger") as mock_logger:
         yield mock_logger
 
 
@@ -222,7 +222,7 @@ class TestCoverageService:
         # Simulate a generic exception during processing
         with patch("builtins.open", mock_open(read_data=mock_json)):
             with patch(
-                "mcp_suite.servers.qa.service.coverage_service._process_section",
+                "mcp_suite.servers.qa.service.coverage._process_section",
                 side_effect=Exception("Generic error"),
             ):
                 issues = process_coverage_json("fake_path.json")

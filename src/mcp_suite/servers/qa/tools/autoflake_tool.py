@@ -17,7 +17,7 @@ import subprocess
 import time
 
 from mcp_suite.servers.qa import logger as main_logger
-from mcp_suite.servers.qa.service.autoflake_service import (
+from mcp_suite.servers.qa.service.autoflake import (
     process_autoflake_results,
 )
 from mcp_suite.servers.qa.utils.decorators import exception_handler
