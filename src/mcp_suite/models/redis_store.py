@@ -56,9 +56,7 @@ def parse_redis_url(url: str) -> dict:
 _store: Optional[Store] = None
 
 
-def get_redis_store(
-    name: str = "mcp_suite", life_span_in_seconds: int = 86400
-) -> Store:
+def get_redis_store(name: str = "mcp_suite", life_span_in_seconds: int = 86400) -> Store:
     """
     Get the Redis store instance.
 

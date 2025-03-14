@@ -1,0 +1,142 @@
+#################################
+#################################
+# CI-Linter Pipeline GitHub Actions #
+#################################
+#################################
+name: CI-Linter Pipeline
+
+on:
+  push:
+    branches-ignore: [master, main]  # Skip CI on pushes to master/main (adjust as needed)
+  pull_request:
+    branches: [master, main]         # Run CI for pull requests targeting master/main
+
+jobs:
+  build:
+    name: Lint Code Base and Run Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
+    steps:
+      # --------------------------------------------
+      # Stage 1: Checkout the Repository
+      # --------------------------------------------
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch the full Git history
+
+
+      # --------------------------------------------
+      # Stage 3: Set Up Python Environment
+      # --------------------------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'  # Specify your desired Python version
+
+      # --------------------------------------------
+      # Stage 4: Install uv package
+      # Failure here will stop the workflow.
+      # --------------------------------------------
+      - name: Install uv
+        run: |
+          pip install uv
+
+      # --------------------------------------------
+      # Stage 5: Install Project Dependencies
+      # --------------------------------------------
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          # Explicitly install pytest-cov to fix coverage issues
+          pip install pytest pytest-cov
+
+      # --------------------------------------------
+      # Stage 6: Run Tests with Coverage
+      # Failure here will stop the workflow.
+      # --------------------------------------------
+      - name: Run tests with coverage
+        run: |
+          # Create or overwrite coverage configuration
+          echo "[run]" > coverage.ini
+          echo "source = src" >> coverage.ini
+          echo "omit =" >> coverage.ini
+          echo "    */tests/*" >> coverage.ini
+          echo "    */test_*.py" >> coverage.ini
+          echo "    */__pycache__/*" >> coverage.ini
+          echo "    */.venv/*" >> coverage.ini
+          echo "    */examples/*" >> coverage.ini
+          echo "    */__init__.py" >> coverage.ini
+
+          echo "[report]" >> coverage.ini
+          echo "exclude_lines =" >> coverage.ini
+          echo "    pragma: no cover" >> coverage.ini
+          echo "    def __repr__" >> coverage.ini
+          echo "    raise NotImplementedError" >> coverage.ini
+          echo "    if __name__ == '__main__':" >> coverage.ini
+          echo "    pass" >> coverage.ini
+          echo "    raise ImportError" >> coverage.ini
+          echo "    except ImportError" >> coverage.ini
+
+          echo "[html]" >> coverage.ini
+          echo "directory = coverage_html_report" >> coverage.ini
+
+          # Set PYTHONPATH to avoid import issues and run pytest for all src files
+          PYTHONPATH=src python -m pytest --cov=src --cov-config=coverage.ini --cov-report=xml --cov-report=term-missing -v
+
+
+      # --------------------------------------------
+      # Stage 7: Run Black for Code Formatting
+      # If black check fails, workflow fails.
+      # --------------------------------------------
+      - name: Run Black
+        run: |
+          if command -v black >/dev/null 2>&1; then
+            python -m black . --check
+          else
+            python -m pip install black
+            python -m black . --check
+          fi
+
+      # --------------------------------------------
+      # Stage 8: Run isort for Import Order Checks
+      # If isort check fails, workflow fails.
+      # --------------------------------------------
+      - name: Run isort
+        run: |
+          if command -v isort >/dev/null 2>&1; then
+            python -m isort . --check
+          else
+            python -m pip install isort
+            python -m isort . --check
+          fi
+
+      # --------------------------------------------
+      # Stage 9: Final Coverage Threshold Check
+      # This step can also fail the workflow if coverage is below threshold.
+      # --------------------------------------------
+      - name: Check Coverage Threshold
+        run: |
+          # Make sure coverage.xml was generated
+          if [ ! -f coverage.xml ]; then
+            echo "No coverage.xml found. Failing."
+            exit 1
+          fi
+
+          coverage_line_rate=$(grep 'line-rate=' coverage.xml | sed -E 's/.*line-rate="([0-9\.]+)".*/\1/')
+          echo "Coverage line rate found: $coverage_line_rate"
+
+          required=1.0  # 1.0 = 100%; adjust as needed
+          check=$(awk -v c1="$coverage_line_rate" -v c2="$required" 'BEGIN {print (c1 < c2) ? "fail" : "pass"}')
+          if [ "$check" = "fail" ]; then
+            echo "Coverage ($coverage_line_rate) is below 100%. Failing the job."
+            exit 1
+          else
+            echo "Coverage met. Good to go!"
+          fi
+

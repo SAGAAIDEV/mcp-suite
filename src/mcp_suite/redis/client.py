@@ -1,90 +1,113 @@
-"""Redis client management for MCP Suite."""
+"""Redis client module for MCP Suite."""
 
-from typing import Optional
-from urllib.parse import urlparse
+import re
+import logging
+from typing import Optional, Tuple
 
 import redis
-from loguru import logger
-
 from src.config.env import REDIS
 
+# Initialize global Redis client
+redis_client = None
 
-def parse_redis_url(url: str) -> tuple:
-    """Parse Redis URL into connection parameters.
+def parse_redis_url(url: str) -> Tuple[str, int, Optional[str], int]:
+    """Parse Redis URL into components.
 
     Args:
-        url: Redis URL string
+        url: Redis URL in format redis://[:password@]host[:port][/db]
 
     Returns:
-        tuple: Host, port, password, and db number
+        Tuple containing host, port, password, and database number
     """
-    parsed = urlparse(url)
-    host = parsed.hostname or "localhost"
-    port = parsed.port or 6379
-    password = parsed.password
+    # Handle database identifier with regex that accepts only digits
+    db_pattern = r"/(\d+)$"
+    db_match = re.search(db_pattern, url)
 
-    # Extract DB number from path
-    path = parsed.path
+    # Extract and remove the database part if it exists
     db = 0
-    if path and len(path) > 1:
+    if db_match:
         try:
-            db = int(path[1:])
-        except ValueError:
-            logger.warning(f"Invalid DB number in Redis URL: {path[1:]}, using 0")
+            db = int(db_match.group(1))
+            url = url[:db_match.start()]
+        except (ValueError, TypeError):
+            pass
+
+    # Handle the rest of the URL
+    pattern = r"redis://(?::([^@]*)@)?([^:/]+)(?::(\d+))?"
+    match = re.match(pattern, url)
+
+    if not match:
+        return "localhost", 6379, None, 0
+
+    password, host, port_str = match.groups()
+
+    port = int(port_str) if port_str else 6379
 
     return host, port, password, db
-
 
 def connect_to_redis(
     host: Optional[str] = None,
     port: Optional[int] = None,
     password: Optional[str] = None,
     db: Optional[int] = None,
+    url: Optional[str] = None,
 ) -> Optional[redis.Redis]:
-    """Connect to a Redis server.
+    """Connect to Redis server.
 
     Args:
-        host: Redis server hostname. Defaults to value from env config.
-        port: Redis server port. Defaults to value from env config.
-        password: Redis server password. Defaults to value from env config.
-        db: Redis database number. Defaults to value from env config.
+        host: Redis host, defaults to value from config
+        port: Redis port, defaults to value from config
+        password: Redis password, defaults to value from config
+        db: Redis database number, defaults to 0
+        url: Redis URL, overrides other parameters if provided
 
     Returns:
-        Optional[redis.Redis]: Redis client instance or None if connection fails
+        Redis client instance or None if connection fails
     """
     global redis_client
 
-    # Parse Redis URL from environment config
-    redis_host, redis_port, redis_password, redis_db = parse_redis_url(REDIS.URL)
-
-    # Use provided values if specified, otherwise use values from config
-    host = host or redis_host
-    port = port or redis_port
-    password = password or redis_password or "redispassword"
-    db = db if db is not None else redis_db
-
     try:
-        client = redis.Redis(
-            host=host, port=port, password=password, db=db, decode_responses=True
+        if url is None and hasattr(REDIS, 'URL'):
+            url = REDIS.URL
+
+        # If explicit parameters are passed, use them directly
+        if not all([host, port, password is not None, db is not None]) and url:
+            parsed_host, parsed_port, parsed_password, parsed_db = parse_redis_url(url)
+            host = host or parsed_host
+            port = port or parsed_port
+            # Only use parsed password if password wasn't explicitly set
+            if password is None:
+                password = parsed_password
+            # Only use parsed db if db wasn't explicitly set
+            if db is None:
+                db = parsed_db
+
+        # Create Redis client with the parameters
+        redis_client = redis.Redis(
+            host=host or "localhost",
+            port=port or 6379,
+            password=password,
+            db=db or 0,
+            decode_responses=True,
         )
-        # Test the connection
-        client.ping()
-        logger.info(f"Successfully connected to Redis at {host}:{port}")
-        redis_client = client
-        return client
-    except redis.ConnectionError as e:
-        logger.error(f"Failed to connect to Redis: {e}")
+
+        # Test connection
+        redis_client.ping()
+        logging.info(f"Connected to Redis at {host}:{port}")
+        return redis_client
+
+    except Exception as e:
+        logging.error(f"Failed to connect to Redis: {str(e)}")
+        redis_client = None
         return None
 
-
-def close_redis_connection():
-    """Close the Redis client connection if it exists."""
+def close_redis_connection() -> None:
+    """Close the Redis connection if it exists."""
     global redis_client
 
-    if redis_client is not None:
-        try:
-            logger.info("Closing Redis client connection")
+    try:
+        if redis_client is not None:
             redis_client.close()
-            redis_client = None
-        except Exception as e:
-            logger.error(f"Error closing Redis client: {e}")
+            logging.info("Redis connection closed")
+    except Exception as e:
+        logging.error(f"Error closing Redis connection: {str(e)}")

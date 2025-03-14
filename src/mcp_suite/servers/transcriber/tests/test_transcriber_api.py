@@ -79,9 +79,7 @@ class TestTranscriberService:
             # Don't assert the exact API key value since it might change
             assert mock_settings.api_key is not None
 
-    def test_transcribe_audio_success(
-        self, mock_env, mock_transcriber, test_audio_file
-    ):
+    def test_transcribe_audio_success(self, mock_env, mock_transcriber, test_audio_file):
         """Test successful audio transcription."""
         service = AssemblyAIService()
         result = service.transcribe_audio(test_audio_file)
