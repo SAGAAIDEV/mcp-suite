@@ -1,28 +1,55 @@
-"""Pytest tool for the SaagaLint MCP server."""
+"""
+Pytest tool for the SaagaLint MCP server.
+
+This module provides a tool for running pytest tests and analyzing the results.
+It integrates with the MCP server to provide a unified interface for running tests
+and reporting results.
+
+Features:
+- Run pytest tests on specified files or directories
+- Generate JSON reports for test results
+- Generate coverage reports
+- Analyze test failures and collection errors
+- Provide helpful instructions for fixing issues
+"""
 
 import subprocess
 import time
 from pathlib import Path
 
-from mcp_suite.servers.saagalint import logger
+from mcp_suite.servers.saagalint import logger as main_logger
 from mcp_suite.servers.saagalint.service.pytest_service import process_pytest_results
 from mcp_suite.servers.saagalint.utils.decorators import exception_handler
 from mcp_suite.servers.saagalint.utils.git_utils import get_git_root
+from mcp_suite.servers.saagalint.utils.logging_utils import get_component_logger
+
+# Get a component-specific logger
+logger = get_component_logger("pytest")
 
 
 @exception_handler()
 async def run_pytest(file_path: str):
-    """Run pytest tests using subprocess in the git parent directory.
+    """
+    Run pytest tests using subprocess in the git parent directory.
 
     This function finds the git root directory and runs pytest from there.
-        file_path: str
-        example src/mcp_suite/base/redis_db/tests/test_redis_manager.py
-        or if you are told to run on all the files use . for root to get all tests
+    It generates JSON reports for test results and coverage, and analyzes
+    the results to provide helpful feedback.
+
+    Args:
+        file_path: Path to the file or directory to test
+                  Example: src/mcp_suite/base/redis_db/tests/test_redis_manager.py
+                  Use "." to run all tests
+
+    Returns:
+        dict: A dictionary containing test results and instructions
     """
     logger.info(f"Running pytest on: {file_path}")
+    main_logger.info(f"Running pytest on: {file_path}")
 
     # Find git root directory
     git_root = get_git_root()
+    logger.debug(f"Git root directory: {git_root}")
 
     # Change to git root directory and run pytest
     cmd = [
@@ -56,16 +83,19 @@ async def run_pytest(file_path: str):
     time.sleep(1)
 
     # Process the results to get both collection errors and test failures
+    logger.info("Processing pytest results")
     processed_results = process_pytest_results("./reports/pytest_results.json")
+    logger.debug(f"Processed results: {processed_results}")
 
     # Check for collection errors first
     if processed_results.failed_collections:
         # Return the first collection error to fix
-        logger.warning(
-            f"Collection error detected: {processed_results.failed_collections[0]}"
-        )
+        error = processed_results.failed_collections[0]
+        logger.warning(f"Collection error detected: {error}")
+        main_logger.warning(f"Collection error detected in pytest: {error}")
+
         return {
-            "Failed Collection": processed_results.failed_collections[0].model_dump(),
+            "Failed Collection": error.model_dump(),
             "Instructions": (
                 "Don't worry, we've got this! Let's fix this collection error first "
                 "before running tests. This is typically an import error or "
@@ -76,9 +106,12 @@ async def run_pytest(file_path: str):
 
     # If no collection errors, check for test failures
     if processed_results.failed_tests:
-        logger.warning(f"Test failure detected: {processed_results.failed_tests[0]}")
+        failure = processed_results.failed_tests[0]
+        logger.warning(f"Test failure detected: {failure}")
+        main_logger.warning(f"Test failure detected in pytest: {failure}")
+
         return {
-            "Failed Tests": processed_results.failed_tests[0].model_dump(),
+            "Failed Tests": failure.model_dump(),
             "Instructions": (
                 "You're making great progress! Let's tackle this test failure together. "
                 "I'll explain what's happening and suggest how to fix it. "
@@ -90,6 +123,8 @@ async def run_pytest(file_path: str):
 
     # If no failures of any kind, return success
     logger.info("All tests passed successfully")
+    main_logger.info("All pytest tests passed successfully")
+
     return {
         "Status": "Success",
         "Summary": processed_results.summary.model_dump(),

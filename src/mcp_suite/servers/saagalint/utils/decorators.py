@@ -42,13 +42,17 @@ import functools
 import inspect
 import json
 import sys
+from pathlib import Path
 from typing import Callable, List, Type, TypeVar
 
-from mcp_suite.servers.saagalint import log_file, logger
+from mcp_suite.servers.saagalint import logger
 from mcp_suite.servers.saagalint.models.exception_data import ExceptionData
 
 # Define a generic type for the return value
 T = TypeVar("T")
+
+# Get the log file path
+log_path = Path(__file__).parent.parent / "logs" / "saagalint.log"
 
 
 def exception_handler(
@@ -113,7 +117,7 @@ def exception_handler(
                     "Instructions": (
                         f"Oops! We encountered an unexpected error while "
                         f"running pytest. Don't worry, these things happen! "
-                        f"Check the logs for details in {log_file}, and we'll "
+                        f"Check the logs for details in {log_path}, and we'll "
                         f"figure out what went wrong together. Every error is "
                         f"an opportunity to learn something new. 1. Explain what "
                         f"happened where it happend, identify where the exception "
@@ -146,7 +150,7 @@ def exception_handler(
                     "Instructions": (
                         f"Oops! We encountered an unexpected error while "
                         f"running pytest. Don't worry, these things happen! "
-                        f"Check the logs for details in {log_file}, and we'll "
+                        f"Check the logs for details in {log_path}, and we'll "
                         f"figure out what went wrong together. Every error is "
                         f"an opportunity to learn something new. 1. Explain what "
                         f"happened where it happend, identify where the exception "

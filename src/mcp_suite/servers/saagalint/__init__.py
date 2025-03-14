@@ -1,8 +1,18 @@
 """
-Dev server package initialization.
+SaagaLint - A comprehensive linting and testing tool for Python projects.
 
-This module initializes the dev server package and sets up centralized logging
-for all modules within the package.
+SaagaLint provides a set of tools for running tests, checking code coverage,
+and performing static analysis on Python code. It integrates with pytest,
+coverage, and various linting tools to provide a unified interface for
+code quality checks.
+
+Components:
+- pytest: Run tests and analyze results
+- coverage: Check code coverage and identify untested code
+- autoflake: Detect and fix unused imports and variables
+
+Each component has its own logger that writes to a separate log file,
+making it easier to track issues and debug problems.
 """
 
 import sys
@@ -14,8 +24,8 @@ from loguru import logger
 log_path = Path(__file__).parent / "logs"
 log_path.mkdir(exist_ok=True)
 
-# Define log file path - using a single log file for all dev modules
-log_file = log_path / "dev_server.log"
+# Define log file path for the main logger
+main_log_file = log_path / "saagalint.log"
 
 # Remove default handler
 logger.remove()
@@ -30,18 +40,20 @@ logger.add(
     "<level>{message}</level>",
 )
 
-# Add file handler with overwrite mode
+# Add file handler with rotation
 logger.add(
-    log_file,
+    main_log_file,
     level="DEBUG",
     format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | "
     "{name}:{function}:{line} - {message}",
-    # backtrace=True,
+    rotation="10 MB",
     diagnose=True,
-    mode="w",  # 'w' mode overwrites the file each time
 )
 
-logger.info(f"Dev server package initialized. Logs will be written to {log_file}")
+logger.info(f"SaagaLint initialized. Main logs will be written to {main_log_file}")
+logger.info(
+    "Component-specific logs will be written to separate files in the logs directory"
+)
 
-# Export the logger and log_file for use in other modules
-__all__ = ["logger", "log_file"]
+# Export the logger for use in other modules
+__all__ = ["logger"]
