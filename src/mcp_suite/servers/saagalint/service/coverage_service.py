@@ -3,15 +3,18 @@
 import json
 from typing import Any, Dict, List
 
-from mcp_suite.servers.saagalint import logger  # Import logger directly from loguru
+# Import logger directly from loguru
 from mcp_suite.servers.saagalint.models.coverage_models import (
     BranchCoverage,
     CoverageIssue,
 )
+from mcp_suite.servers.saagalint.utils.logging_utils import get_component_logger
 
 # Remove redundant import and setup since it's already done in __init__.py
 # from mcp_suite.servers.dev.config.config import setup_logging
 # setup_logging("services")
+
+logger = get_component_logger("coverage")
 
 
 def process_coverage_json(

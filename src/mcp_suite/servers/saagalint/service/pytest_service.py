@@ -4,8 +4,6 @@ import json
 from pathlib import Path
 from typing import Union
 
-# Replace direct loguru import with import from dev package
-from mcp_suite.servers.saagalint import logger
 from mcp_suite.servers.saagalint.config import ReportPaths
 from mcp_suite.servers.saagalint.models.pytest_models import (
     PytestCollectionFailure,
@@ -13,6 +11,12 @@ from mcp_suite.servers.saagalint.models.pytest_models import (
     PytestResults,
     PytestSummary,
 )
+from mcp_suite.servers.saagalint.utils.logging_utils import get_component_logger
+
+# Replace direct loguru import with import from dev package
+
+
+logger = get_component_logger("pytest")
 
 
 def process_pytest_results(

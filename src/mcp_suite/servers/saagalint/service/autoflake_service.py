@@ -10,7 +10,7 @@ from mcp_suite.servers.saagalint.config import ReportPaths
 from mcp_suite.servers.saagalint.utils.logging_utils import get_component_logger
 
 # Get a component-specific logger
-logger = get_component_logger("autoflake_service")
+logger = get_component_logger("autoflake")
 
 
 def process_autoflake_results(
