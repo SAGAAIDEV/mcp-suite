@@ -4,6 +4,8 @@
 
 MCP Suite is a comprehensive system tray application that manages a collection of Model Context Protocol (MCP) servers, designed to empower AI agents with seamless access to a wide range of external services and APIs. By providing a standardized interface for LLMs to interact with various tools and platforms, MCP Suite bridges the gap between AI capabilities and real-world applications.
 
+This vision is implemented through the architecture described in the [System Architecture](system_architecture.md) document, using the technologies outlined in the [Technology Stack](technology_stack.md) document, and following the development plan in the [Sprint Development Plan](sprint_development_plan.md).
+
 ## Core Vision
 
 Our vision is to create an ecosystem where AI agents can effortlessly extend their capabilities through a unified protocol, enabling them to access, manipulate, and leverage external services as naturally as they process text. MCP Suite aims to be the definitive toolkit that transforms LLMs from isolated text processors into connected agents that can take meaningful actions in the digital world.
@@ -212,6 +214,8 @@ The suite is designed to grow through community contributions, with clear guidel
 - Monitoring and analytics
 - High-availability configurations
 - Advanced workflow automation capabilities
+
+For detailed implementation plans, see the [Sprint Planning](sprint_planning_jira.md) document and the [User Stories](user_stories.md) that drive our development priorities.
 
 ## Conclusion
 

@@ -1,6 +1,6 @@
 # MCP Suite - Sprint Planning with JIRA Tasks
 
-This document outlines the detailed sprint planning for the first two sprints of the MCP Suite project, including JIRA tasks, technical guidance, and acceptance criteria.
+This document outlines the detailed sprint planning for the first two sprints of the MCP Suite project, including JIRA tasks, technical guidance, and acceptance criteria. This planning aligns with the [System Architecture](system_architecture.md) and [Technical Requirements](technical_requirements.md) documents.
 
 ## Sprint 1: Base Service and Account Management
 
@@ -483,4 +483,28 @@ Implement a system for checking for application updates and notifying users when
 - [ ] Tracks update history
 - [ ] Displays release notes for available updates
 - [ ] Logs update events with context
-- [ ] Works consistently across 
+- [ ] Works consistently across Windows, macOS, and Linux
+
+## Future Sprints
+
+The following sprints will be detailed in future planning sessions. For a high-level overview of all planned sprints, see the [Sprint Development Plan](sprint_development_plan.md).
+
+### Sprint 3: MCP Server Viewer
+Focus on implementing the MCP Server Viewer that allows users to see running servers, their tools, and manage credentials.
+
+### Sprint 4: Scheduler and Task Management
+Focus on implementing Celery integration for task scheduling, task management UI, and monitoring with Flower.
+
+### Sprint 5: DataFrame and Data Visualization
+Focus on implementing DataFrame wrapper for structured data, data visualization, and manipulation.
+
+### Sprint 6: Rule Builder and Workflow Automation
+Focus on creating workflow definition interface, multi-step process automation, and conditional logic support.
+
+### Sprint 7: Docker Integration and Deployment
+Focus on implementing Docker container management, Docker Compose integration, and container health monitoring.
+
+### Sprint 8: Security and Multi-User Support
+Focus on enhancing security features, adding multi-user support, and implementing role-based access control.
+
+These future sprints align with the user stories defined in the [User Stories](user_stories.md) document and will implement the components described in the [System Architecture](system_architecture.md) document. 

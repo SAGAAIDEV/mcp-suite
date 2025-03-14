@@ -3,7 +3,7 @@ repos:
     hooks:
       - id: pytest-check
         name: pytest-check
-        entry: bash -c 'cd $(git rev-parse --show-toplevel) && PYTHONPATH=$(git rev-parse --show-toplevel) uv run pytest . --cov=src/ --cov-report=term-missing --cov-fail-under=100 -v'
+        entry: bash -c 'cd $(git rev-parse --show-toplevel) &&  uv run pytest . --cov=src/ --cov-report=term-missing --cov-fail-under=100 -v'
         language: system
         pass_filenames: false
         always_run: true
@@ -12,21 +12,21 @@ repos:
 
       - id: black
         name: black
-        entry: uv run black
+        entry: uv run python -m black
         language: system
         types: [python]
-        exclude: \.venv/
+        exclude: \.venv/|cookiecutter-mcp/
 
       - id: isort
         name: isort
-        entry: uv run isort
+        entry: uv run python -m isort
         language: system
         types: [python]
-        exclude: \.venv/
+        exclude: \.venv/|cookiecutter-mcp/
 
       - id: flake8
         name: flake8
-        entry: uv run flake8
+        entry: uv run python -m flake8 --max-line-length=99
         language: system
         types: [python]
-        exclude: \.venv/ 
+        exclude: \.venv/|cookiecutter-mcp/

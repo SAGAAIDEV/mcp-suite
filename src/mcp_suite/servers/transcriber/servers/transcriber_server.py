@@ -51,10 +51,13 @@ async def transcribe_file(
 if __name__ == "__main__":  # pragma: no cover
     # Print service information
     print("Transcriber MCP Service")
-    print(
-        f"Supported languages: "
-        f"{', '.join([f'{code} ({name})' for code, name in SUPPORTED_LANGUAGES.items()])}"
+
+    # Format supported languages
+    languages = ", ".join(
+        [f"{code} ({name})" for code, name in SUPPORTED_LANGUAGES.items()]
     )
+    print(f"Supported languages: {languages}")
+
     print(f"Supported formats: {', '.join(SUPPORTED_FORMATS)}")
 
     # Run the MCP server

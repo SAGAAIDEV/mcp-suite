@@ -5,7 +5,10 @@ This document outlines the technology stack used in the MCP Suite project, detai
 ## Core Technologies
 
 ### Programming Languages
-
+- **Python 3.9+**: Primary language for all components
+- **QML**: For UI component definitions
+- **SQL**: For database queries where applicable
+- **Bash/Shell**: For deployment scripts
 
 ### UI Frameworks
 - **PyQt6/PySide6**: For cross-platform system tray application
@@ -21,7 +24,8 @@ This document outlines the technology stack used in the MCP Suite project, detai
 
 ### API Development
 - **FastMCP**: MCP-specific extension of FastAPI
-
+- **FastAPI**: For underlying API framework
+- **Uvicorn**: ASGI server for FastAPI applications
 
 ## Task Management & Scheduling
 
@@ -29,9 +33,7 @@ This document outlines the technology stack used in the MCP Suite project, detai
 - **Celery**: Distributed task queue
 - **Flower**: Monitoring and administration for Celery
 - **Redis**: As message broker for Celery
-
-
-
+- **Croniter**: For cron-like scheduling expressions
 
 ## Testing & Quality Assurance
 
@@ -55,23 +57,29 @@ This document outlines the technology stack used in the MCP Suite project, detai
 
 ### Packaging
 - **uv**: For package management and installation
+- **PyInstaller**: For creating standalone executables
+- **Docker**: For containerization of services
 
 ### Documentation
 - **Markdown**: For documentation authoring
+- **MkDocs**: For documentation site generation (optional)
 
 ## Development Tools
 
 ### Development Environment
 - **Cursor**: Primary IDE or other MCP powered development project
-
+- **Visual Studio Code**: Alternative IDE with Python extensions
+- **Git**: For version control
 
 ### Debugging
 - **pdb++**: Enhanced Python debugger
+- **loguru**: For enhanced logging and debugging
 
 ## Monitoring & Logging
 
 ### Logging
 - **loguru**: For enhanced logging
+- **structlog**: For structured logging output
 
 ### Monitoring
 - **Prometheus**: For metrics collection

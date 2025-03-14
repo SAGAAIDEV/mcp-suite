@@ -1,6 +1,6 @@
 # MCP Suite - User Stories
 
-This document outlines the key user journeys and interactions with the MCP Suite system, providing a narrative of how users will experience and utilize the application.
+This document outlines the key user journeys and interactions with the MCP Suite system, providing a narrative of how users will experience and utilize the application. These user stories inform the [Technical Requirements](technical_requirements.md) and are implemented according to the [Sprint Planning](sprint_planning_jira.md) schedule.
 
 ## 1. Installation and Initial Setup
 
@@ -21,6 +21,8 @@ This document outlines the key user journeys and interactions with the MCP Suite
 - Menu displays organized categories of available servers
 - Servers requiring authentication are visually indicated
 - Application startup time is less than 3 seconds
+
+**Implementation:** Planned for [Sprint 2: System Tray Application](sprint_planning_jira.md#sprint-2-system-tray-application)
 
 ## 2. Server Authentication
 
@@ -199,3 +201,9 @@ This document outlines the key user journeys and interactions with the MCP Suite
 - Account switching within operations
 - Connection testing for all accounts
 - Secure storage of all account credentials 
+
+**Implementation:** Planned for [Sprint 1: Base Service and Account Management](sprint_planning_jira.md#sprint-1-base-service-and-account-management)
+
+## Relationship to System Architecture
+
+The user stories in this document directly inform the components described in the [System Architecture](system_architecture.md) document and are implemented using the technologies specified in the [Technology Stack](technology_stack.md) document. 
