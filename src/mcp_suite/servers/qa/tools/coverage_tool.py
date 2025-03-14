@@ -15,7 +15,7 @@ Features:
 import json
 
 from mcp_suite.servers.qa import logger as main_logger
-from mcp_suite.servers.qa.service.coverage_service import process_coverage_json
+from mcp_suite.servers.qa.service.coverage import process_coverage_json
 from mcp_suite.servers.qa.utils.decorators import exception_handler
 from mcp_suite.servers.qa.utils.git_utils import get_git_root
 from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
