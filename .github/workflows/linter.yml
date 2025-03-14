@@ -71,6 +71,7 @@ jobs:
           echo "    */__pycache__/*" >> coverage.ini
           echo "    */.venv/*" >> coverage.ini
           echo "    */examples/*" >> coverage.ini
+          echo "    */__init__.py" >> coverage.ini
 
           echo "[report]" >> coverage.ini
           echo "exclude_lines =" >> coverage.ini
