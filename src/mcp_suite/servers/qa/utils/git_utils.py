@@ -4,6 +4,9 @@ from pathlib import Path
 
 from mcp_suite.servers.qa import logger
 
+# Bind the component field to the logger
+logger = logger.bind(component="git_utils")
+
 
 def get_git_root():
     """

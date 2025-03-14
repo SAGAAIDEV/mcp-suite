@@ -11,12 +11,6 @@ from mcp_suite.servers.qa.models.pytest_models import (
     PytestResults,
     PytestSummary,
 )
-from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
-
-# Replace direct loguru import with import from dev package
-
-
-logger = get_component_logger("pytest")
 
 
 def process_pytest_results(
@@ -38,8 +32,6 @@ def process_pytest_results(
         json.JSONDecodeError: If the input file isn't valid JSON
         KeyError: If the input file doesn't have the expected structure
     """
-    logger.info(f"Processing pytest results from {input_file}")
-
     # Convert string paths to Path objects if needed
     input_path = Path(input_file) if isinstance(input_file, str) else input_file
     output_path = Path(output_file) if isinstance(output_file, str) else output_file
@@ -52,7 +44,6 @@ def process_pytest_results(
         # Ensure tests key exists
         if "tests" not in results_data:
             error_msg = f"Error: 'tests' key not found in {input_path}"
-            logger.error(error_msg)
             return PytestResults(summary=PytestSummary(), error=error_msg)
 
         # Extract failed collections
@@ -97,26 +88,18 @@ def process_pytest_results(
         with open(output_path, "w") as f:
             f.write(result.model_dump_json(indent=2))
 
-        logger.info(
-            f"Processed pytest results: {result.summary.total} total, "
-            f"{result.summary.failed} failed, "
-            f"{result.summary.passed} passed"
-        )
         return result
 
     except FileNotFoundError:
         error_msg = f"Error: Input file not found: {input_path}"
-        logger.error(error_msg)
         return PytestResults(summary=PytestSummary(), error=error_msg)
 
     except json.JSONDecodeError as e:
         error_msg = f"Error: Invalid JSON in {input_path}: {str(e)}"
-        logger.error(error_msg)
         return PytestResults(summary=PytestSummary(), error=error_msg)
 
     except Exception as e:
         error_msg = f"Error processing pytest results: {str(e)}"
-        logger.exception(error_msg)
         return PytestResults(summary=PytestSummary(), error=error_msg)
 
 

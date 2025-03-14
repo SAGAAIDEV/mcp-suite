@@ -5,6 +5,9 @@ from typing import Any
 # Import logging configuration
 from mcp_suite.servers.qa import logger
 
+# Bind the component field to the logger
+logger = logger.bind(component="module_utils")
+
 
 def get_reinitalized_mcp(mcp_instance: Any, file: str) -> Any:
     """Reinitialize the module and extract the MCP instance.

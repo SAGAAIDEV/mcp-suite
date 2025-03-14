@@ -9,14 +9,20 @@ Available tools:
 - run_pytest: Run pytest tests and analyze results
 - run_coverage: Check code coverage and identify untested code
 - run_autoflake: Detect and fix unused imports and variables
+- run_flake8: Check code style and quality using flake8
 """
 
 from mcp.server.fastmcp import FastMCP
 
-from mcp_suite.servers.qa import logger
 from mcp_suite.servers.qa.tools.autoflake_tool import run_autoflake
 from mcp_suite.servers.qa.tools.coverage_tool import run_coverage
+from mcp_suite.servers.qa.tools.flake8_tool import run_flake8
 from mcp_suite.servers.qa.tools.pytest_tool import run_pytest
+
+# Remove logger imports and initialization
+# from mcp_suite.servers.qa import logger
+# Bind the component field to the logger
+# logger = logger.bind(component="tools")
 
 
 def register_tools(mcp: FastMCP) -> None:
@@ -30,18 +36,14 @@ def register_tools(mcp: FastMCP) -> None:
     Args:
         mcp: The MCP server instance
     """
-    logger.info("Registering SaagaLint tools with MCP server")
-
     # Register pytest tool
-    logger.debug("Registering run_pytest tool")
     mcp.tool()(run_pytest)
 
     # Register coverage tool
-    logger.debug("Registering run_coverage tool")
     mcp.tool()(run_coverage)
 
     # Register autoflake tool
-    logger.debug("Registering run_autoflake tool")
     mcp.tool()(run_autoflake)
 
-    logger.info("All SaagaLint tools registered successfully")
+    # Register flake8 tool
+    mcp.tool()(run_flake8)

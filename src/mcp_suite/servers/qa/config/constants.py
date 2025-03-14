@@ -13,3 +13,4 @@ class ReportPaths(str, Enum):
     FAILED_TESTS = Path("./reports/failed_tests.json")
     COVERAGE = Path("./reports/coverage.json")
     AUTOFLAKE = Path("./reports/autoflake.json")
+    FLAKE8 = Path("./reports/flake8.json")

@@ -12,16 +12,16 @@ Features:
 - Generate detailed reports for specific files
 """
 
-import json
-
-from mcp_suite.servers.qa import logger as main_logger
+# Remove logger imports
+# from mcp_suite.servers.qa import logger as main_logger
 from mcp_suite.servers.qa.service.coverage import process_coverage_json
 from mcp_suite.servers.qa.utils.decorators import exception_handler
 from mcp_suite.servers.qa.utils.git_utils import get_git_root
-from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
 
-# Get a component-specific logger
-logger = get_component_logger("coverage")
+# from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
+
+# Remove logger initialization
+# logger = get_component_logger("coverage")
 
 
 @exception_handler()
@@ -39,53 +39,34 @@ async def run_coverage(file_path):
     Returns:
         dict: A dictionary containing coverage results and instructions
     """
-    logger.info(f"Running coverage analysis for: {file_path}")
-    main_logger.info(f"Running coverage analysis for: {file_path}")
+    # Find git root directory
+    git_root = get_git_root()
 
-    coverage_results_file = get_git_root() / "reports/coverage.json"
-    logger.debug(f"Reading coverage results from: {coverage_results_file}")
+    # Process coverage data
+    coverage_file = git_root / "reports" / "coverage.json"
+    coverage_issues = process_coverage_json(str(coverage_file), file_path)
 
-    result = process_coverage_json(coverage_results_file)
-
-    # Log each coverage issue for debugging
-    logger.info(f"Found {len(result)} coverage issues")
-    for issue in result:
-        issue_data = issue.model_dump()
-        logger.debug(f"Coverage issue details: {json.dumps(issue_data, indent=2)}")
-
-    if file_path:
-        logger.info(f"Filtering results for file: {file_path}")
-        result = next((item for item in result if item.file_path == file_path), None)
-    else:
-        result = str(result.values()[0])
-
-    if result:
-        issue_count = len(result) if hasattr(result, "__len__") else 1
-        logger.warning(f"Coverage issues found: {issue_count} issues")
-        main_logger.warning(f"Coverage issues found: {issue_count} issues")
-
+    # If no issues found, return success
+    if not coverage_issues:
         return {
-            "Message": str(result),
+            "Status": "Success",
+            "Message": "Great job! No coverage issues found.",
             "Instructions": (
-                "We're making great progress! Let's improve the test coverage "
-                "for these areas. I'll help you understand what needs to be tested "
-                "and how to write effective tests for the missing coverage. "
-                "Once you've added the tests, run the pytest tool again. "
-                "Remember, better test coverage means more reliable code!"
+                "Your code has excellent test coverage. Keep up the good work!"
             ),
         }
-    else:
-        logger.info("Coverage is complete!")
-        main_logger.info("Coverage analysis complete - no issues found")
 
-        return {
-            "Message": (
-                "Outstanding job! Your test coverage is complete and comprehensive. "
-                "You're doing excellent work!"
-            ),
-            "Instructions": (
-                "You're on a roll! Let's continue with running the linting tools "
-                "to make sure your code style is as perfect as your test coverage. "
-                "Keep up the great work!"
-            ),
-        }
+    # Return the first issue to fix
+    issue = coverage_issues[0]
+
+    return {
+        "Coverage Issue": issue.model_dump(),
+        "Instructions": (
+            "Let's improve your test coverage! I've identified an area of code "
+            "that needs more tests. Here's what you can do:\n\n"
+            "1. Create a new test that exercises the uncovered lines\n"
+            "2. Make sure your test covers all branches and conditions\n"
+            "3. Run the tests again to verify improved coverage\n\n"
+            "I'll help you write the tests to cover these lines."
+        ),
+    }

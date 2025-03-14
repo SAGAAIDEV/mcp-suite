@@ -17,7 +17,7 @@
         "run",
         "python",
         "-m",
-        "src.mcp_suite.servers.saagalint",
+        "src.mcp_suite.servers.qa",
         "stdio"
       ]
     }

@@ -231,7 +231,7 @@ class TestExceptionHandler:
         assert original_sig.return_annotation == decorated_sig.return_annotation
 
     def test_exception_data_integration(self):
-        """Test integration with ExceptionData."""
+        """Test that exception data is properly integrated into the result."""
 
         @exception_handler()
         def sample_function():
@@ -241,9 +241,9 @@ class TestExceptionHandler:
 
             nested_function()
 
-        # Mock the logger to avoid actual logging
-        with patch("mcp_suite.servers.qa.utils.decorators.logger"):
-            result = sample_function()
+        # Remove logger mock
+        # with patch("mcp_suite.servers.qa.utils.decorators.logger"):
+        result = sample_function()
 
         # Check that the result contains the expected error information
         assert result["Status"] == "Error"

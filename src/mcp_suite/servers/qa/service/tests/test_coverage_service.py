@@ -5,26 +5,18 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-# Import the centralized logger
-from mcp_suite.servers.qa import logger
-
-# Use absolute imports
 from mcp_suite.servers.qa.service.coverage import (
     _process_section,
     process_coverage_json,
 )
 
-# Log test start
-logger.info("Test coverage service module tests starting.")
-
-
-# Instead of mocking the logger completely, let's create a test that verifies logging
-# This will help ensure logs are being written
-@pytest.fixture
-def capture_logs():
-    """Capture logs during a test."""
-    with patch("mcp_suite.servers.qa.service.coverage.logger") as mock_logger:
-        yield mock_logger
+# Remove logging test and fixture
+# @pytest.fixture
+# def capture_logs():
+#     """Fixture to capture and test logging calls."""
+#     mock_logger = MagicMock()
+#     with patch("mcp_suite.servers.qa.service.coverage.logger", mock_logger):
+#         yield mock_logger
 
 
 class TestCoverageService:
@@ -287,23 +279,16 @@ class TestCoverageService:
 
     def test_process_section_no_issues(self):
         """Test processing a section with no issues."""
-        file_path = "src/mcp_suite/example.py"
+        # Create a section with no missing lines or branches
+        file_path = "test_file.py"
         sections = {
-            "test_function": {"no_missing_lines": [], "no_missing_branches": []}
+            "function_with_no_issues": {
+                "missing_lines": [],
+                "missing_branches": [],
+            }
         }
 
         issues = _process_section(file_path, sections)
 
         # We should have 0 issues since there are no missing lines or branches
         assert len(issues) == 0
-
-    def test_logging(self, capture_logs):
-        """Test that logging is working properly."""
-        mock_json = json.dumps(self.SAMPLE_COVERAGE_DATA)
-
-        with patch("builtins.open", mock_open(read_data=mock_json)):
-            process_coverage_json("fake_path.json")
-
-        # Verify that logging calls were made
-        assert capture_logs.info.called
-        assert capture_logs.info.call_count >= 2  # At least 2 info logs should be made

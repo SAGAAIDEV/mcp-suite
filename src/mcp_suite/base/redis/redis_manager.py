@@ -189,6 +189,7 @@ class RedisManager(Singleton):
                 return False, None
         except Exception as e:
             logger.error(f"Failed to launch Redis server: {e}")
+            self.process = None  # Make sure process is set to None
             self.launched_by_us = False
             return False, None
 

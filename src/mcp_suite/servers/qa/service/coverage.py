@@ -8,13 +8,10 @@ from mcp_suite.servers.qa.models.coverage_models import (
     BranchCoverage,
     CoverageIssue,
 )
-from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
 
 # Remove redundant import and setup since it's already done in __init__.py
 # from mcp_suite.servers.dev.config.config import setup_logging
 # setup_logging("services")
-
-logger = get_component_logger("coverage")
 
 
 def process_coverage_json(
@@ -35,20 +32,15 @@ def process_coverage_json(
         FileNotFoundError: If the coverage file doesn't exist
         json.JSONDecodeError: If the coverage file contains invalid JSON
     """
-    logger.info(f"Processing coverage data from {coverage_file}")
     try:
         with open(coverage_file, "r") as f:
             data = json.load(f)
 
         # Check if the data has the expected structure
         if not isinstance(data, dict):
-            logger.error("Invalid coverage data: not a dictionary")
             return []
 
         if "files" not in data:
-            logger.error("Invalid coverage data: 'files' key not found")
-            # Return an empty list instead of raising an error
-            # This makes the function more robust when handling unexpected data
             return []
 
         coverage_data = data["files"]
@@ -62,7 +54,7 @@ def process_coverage_json(
                 if k == specific_file or k.endswith(f"/{specific_file}")
             }
             if not coverage_data:
-                logger.warning(f"No coverage data found for file: {specific_file}")
+                return []
 
         # Iterate through each file in the coverage data
         for file_path, file_data in coverage_data.items():
@@ -98,16 +90,12 @@ def process_coverage_json(
                     _process_section(file_path, file_data.get(section_type, {}))
                 )
 
-        logger.info(f"Found {len(result)} coverage issues")
         return result
     except FileNotFoundError:
-        logger.error(f"Coverage file not found: {coverage_file}")
         raise
     except json.JSONDecodeError:
-        logger.error(f"Invalid JSON in coverage file: {coverage_file}")
         raise
-    except Exception as e:
-        logger.exception(f"Error processing coverage data: {e}")
+    except Exception:
         # Return an empty list for any other errors to make the function more robust
         return []
 

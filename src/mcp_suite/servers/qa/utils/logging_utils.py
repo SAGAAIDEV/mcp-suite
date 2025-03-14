@@ -3,9 +3,9 @@ Logging utilities for SaagaLint.
 
 This module provides utilities for setting up and configuring loggers
 for different components of the SaagaLint system.
-"""
 
-from pathlib import Path
+All logging has been disabled as requested.
+"""
 
 from loguru import logger
 
@@ -16,9 +16,7 @@ def setup_component_logger(
     """
     Set up a logger for a specific component.
 
-    This function creates a logger instance for a specific component,
-    with output to both the console and a component-specific log file.
-    The log file is overwritten on each run.
+    This is a no-op function that returns a disabled logger.
 
     Args:
         component_name: The name of the component (e.g., 'pytest', 'coverage')
@@ -26,47 +24,22 @@ def setup_component_logger(
         rotation: When to rotate log files (default: '10 MB')
 
     Returns:
-        A configured logger instance
+        A disabled logger instance
     """
-    # Create logs directory if it doesn't exist
-    log_path = Path(__file__).parent.parent / "logs"
-    log_path.mkdir(exist_ok=True)
-
-    # Define log file path for this component
-    log_file = log_path / f"{component_name}.log"
-
-    # Create a new logger instance
-    component_logger = logger.bind(component=component_name)
-
-    # Add file handler with rotation and mode="w" to overwrite the file on each run
-    component_logger.add(
-        log_file,
-        level=log_level,
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | "
-        "{extra[component]} | {name}:{function}:{line} - {message}",
-        rotation=rotation,
-        diagnose=True,
-        mode="w",  # Overwrite the file on each run
-    )
-
-    component_logger.info(
-        f"{component_name.capitalize()} logger initialized. "
-        f"Logs will be written to {log_file}"
-    )
-
-    return component_logger
+    # Return a disabled logger
+    return logger.bind(component=component_name)
 
 
 def get_component_logger(component_name: str) -> logger:
     """
     Get a logger for a specific component.
 
-    If the logger doesn't exist, it will be created.
+    This is a no-op function that returns a disabled logger.
 
     Args:
         component_name: The name of the component
 
     Returns:
-        A configured logger instance
+        A disabled logger instance
     """
-    return setup_component_logger(component_name)
+    return logger.bind(component=component_name)

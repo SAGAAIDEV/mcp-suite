@@ -4,16 +4,17 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Union
 
-# Import logger from dev package
-from mcp_suite.servers.qa import logger as main_logger
+# Remove logger imports
+# from mcp_suite.servers.qa import logger as main_logger
 from mcp_suite.servers.qa.config import ReportPaths
-from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
 
-# Get a component-specific logger
-logger = get_component_logger("autoflake")
+# from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
+
+# Remove logger initialization
+# logger = get_component_logger("autoflake")
 
 
-def process_autoflake_results(
+def process_flake8_results(
     input_file: Union[str, Path] = ReportPaths.AUTOFLAKE,
 ) -> Dict[str, Any]:
     """
@@ -25,8 +26,9 @@ def process_autoflake_results(
     Returns:
         Dictionary containing summary and issues
     """
-    logger.info(f"Processing autoflake results from {input_file}")
-    main_logger.info(f"Processing autoflake results from {input_file}")
+    # Remove logging calls
+    # logger.info(f"Processing autoflake results from {input_file}")
+    # main_logger.info(f"Processing autoflake results from {input_file}")
 
     # Convert string paths to Path objects if needed
     input_path = Path(input_file) if isinstance(input_file, str) else input_file
@@ -34,8 +36,9 @@ def process_autoflake_results(
     try:
         # Check if the file exists
         if not input_path.exists():
-            logger.warning(f"Autoflake results file not found: {input_path}")
-            main_logger.warning(f"Autoflake results file not found: {input_path}")
+            # Remove logging calls
+            # logger.warning(f"Autoflake results file not found: {input_path}")
+            # main_logger.warning(f"Autoflake results file not found: {input_path}")
             return {
                 "Status": "Success",
                 "Message": "No issues found (results file not present).",
@@ -56,8 +59,9 @@ def process_autoflake_results(
 
         # If no issues found, return success
         if not all_issues:
-            logger.info("No autoflake issues found")
-            main_logger.info("No autoflake issues found in results file")
+            # Remove logging calls
+            # logger.info("No autoflake issues found")
+            # main_logger.info("No autoflake issues found in results file")
             return {
                 "Status": "Success",
                 "Message": (
@@ -73,8 +77,9 @@ def process_autoflake_results(
         first_issue = all_issues[0]
 
         # Extract relevant information
-        logger.info(f"Found autoflake issue: {json.dumps(first_issue, indent=2)}")
-        main_logger.warning("Found autoflake issues in results file")
+        # Remove logging calls
+        # logger.info(f"Found autoflake issue: {json.dumps(first_issue, indent=2)}")
+        # main_logger.warning("Found autoflake issues in results file")
 
         return {
             "Status": "Issues Found",
@@ -87,8 +92,9 @@ def process_autoflake_results(
 
     except json.JSONDecodeError as e:
         error_msg = f"Error: Invalid JSON in {input_path}: {str(e)}"
-        logger.error(error_msg)
-        main_logger.error(error_msg)
+        # Remove logging calls
+        # logger.error(error_msg)
+        # main_logger.error(error_msg)
         return {
             "Status": "Error",
             "Message": error_msg,
@@ -100,8 +106,9 @@ def process_autoflake_results(
 
     except Exception as e:
         error_msg = f"Error processing autoflake results: {str(e)}"
-        logger.exception(error_msg)
-        main_logger.exception(error_msg)
+        # Remove logging calls
+        # logger.exception(error_msg)
+        # main_logger.exception(error_msg)
         return {
             "Status": "Error",
             "Message": error_msg,
@@ -110,11 +117,3 @@ def process_autoflake_results(
                 "Please try running the tool again."
             ),
         }
-
-
-if __name__ == "__main__":  # pragma: no cover
-    # Example usage
-    results = process_autoflake_results()
-    print(f"Status: {results['Status']}")
-    if "Issue" in results:
-        print(f"Issue: {results['Issue']}")

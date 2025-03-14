@@ -7,8 +7,8 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from mcp_suite.servers.qa.service.autoflake import (
-    process_autoflake_results,
+from mcp_suite.servers.qa.service.flake8 import (
+    process_flake8_results,
 )
 
 
@@ -42,7 +42,7 @@ def test_process_autoflake_results_file_not_found():
     with tempfile.TemporaryDirectory() as temp_dir:
         # Use a non-existent file
         non_existent_file = Path(temp_dir) / "non_existent.json"
-        result = process_autoflake_results(non_existent_file)
+        result = process_flake8_results(non_existent_file)
 
         assert result["Status"] == "Success"
         assert "No issues found" in result["Message"]
@@ -56,7 +56,7 @@ def test_process_autoflake_results_empty_results():
         with open(results_file, "w") as f:
             json.dump({}, f)
 
-        result = process_autoflake_results(results_file)
+        result = process_flake8_results(results_file)
 
         assert result["Status"] == "Success"
         assert "Great job!" in result["Message"]
@@ -70,7 +70,7 @@ def test_process_autoflake_results_with_issues(sample_autoflake_results):
         with open(results_file, "w") as f:
             json.dump(sample_autoflake_results, f)
 
-        result = process_autoflake_results(results_file)
+        result = process_flake8_results(results_file)
 
         assert result["Status"] == "Issues Found"
         assert "Issue" in result
@@ -83,7 +83,7 @@ def test_process_autoflake_results_invalid_json():
     """Test processing autoflake results when the JSON is invalid."""
     with patch("builtins.open", mock_open(read_data="invalid json")):
         with patch("pathlib.Path.exists", return_value=True):
-            result = process_autoflake_results("fake_path.json")
+            result = process_flake8_results("fake_path.json")
 
             assert result["Status"] == "Error"
             assert "Invalid JSON" in result["Message"]
@@ -93,7 +93,7 @@ def test_process_autoflake_results_exception():
     """Test processing autoflake results when an exception occurs."""
     with patch("builtins.open", side_effect=Exception("Test exception")):
         with patch("pathlib.Path.exists", return_value=True):
-            result = process_autoflake_results("fake_path.json")
+            result = process_flake8_results("fake_path.json")
 
             assert result["Status"] == "Error"
             assert "Test exception" in result["Message"]
@@ -111,7 +111,7 @@ def test_process_autoflake_results_unused_variable(sample_autoflake_results):
         with open(results_file, "w") as f:
             json.dump(unused_variable_result, f)
 
-        result = process_autoflake_results(results_file)
+        result = process_flake8_results(results_file)
 
         assert result["Status"] == "Issues Found"
         assert result["Issue"]["code"] == "F841"

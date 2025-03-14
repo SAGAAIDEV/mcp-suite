@@ -387,9 +387,19 @@ class TestRedisManager:
         mock_get_client.assert_called_once()
 
     @patch("subprocess.Popen")
-    def test_launch_redis_server_general_exception(self, mock_popen, redis_manager):
+    @patch("redis.Redis")
+    def test_launch_redis_server_general_exception(
+        self, mock_redis, mock_popen, redis_manager
+    ):
         """Test launch_redis_server with a general exception."""
-        # Setup mock to raise an exception
+        # Setup Redis mock to raise ConnectionError to simulate Redis not running
+        mock_redis_instance = MagicMock()
+        mock_redis_instance.ping.side_effect = redis.ConnectionError(
+            "Connection refused"
+        )
+        mock_redis.return_value = mock_redis_instance
+
+        # Setup Popen mock to raise an exception
         mock_popen.side_effect = Exception("Test general exception")
 
         # Call the method

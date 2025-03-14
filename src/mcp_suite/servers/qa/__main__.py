@@ -29,23 +29,17 @@ from pathlib import Path
 import fire
 from mcp.server.fastmcp import FastMCP
 
-# Import logging configuration
-from mcp_suite.servers.qa import logger
-
 # Import tool registration function
 from mcp_suite.servers.qa.tools.register_tools import register_tools
 
 # Store server start time
 SERVER_START_TIME = datetime.datetime.now().isoformat()
-logger.info(f"SaagaLint server starting at {SERVER_START_TIME}")
 
 # Create logs directory if it doesn't exist
 log_path = Path(__file__).parent / "logs"
 log_path.mkdir(exist_ok=True)
-logger.info(f"Logs directory: {log_path}")
 
 # Create the MCP server instance
-logger.info("Creating MCP server instance")
 mcp = FastMCP("precommit", settings={"host": "localhost", "port": 8081, "reload": True})
 
 # Register all tools
@@ -70,9 +64,6 @@ def run_server(transport="stdio", host="localhost", port=8081, debug=False):
     Returns:
         None
     """
-    logger.info(f"Starting SaagaLint MCP server with {transport} transport")
-    logger.info(f"Server configuration: host={host}, port={port}, debug={debug}")
-
     # Update settings based on parameters
     mcp.settings.host = host
     mcp.settings.port = port
@@ -80,14 +71,11 @@ def run_server(transport="stdio", host="localhost", port=8081, debug=False):
 
     # Run the server with the specified transport
     try:
-        logger.info(f"Running MCP server with {transport} transport")
         mcp.run(transport=transport)
-    except Exception as e:
-        logger.exception(f"Error running MCP server: {e}")
+    except Exception:
         raise
 
 
 if __name__ == "__main__":  # pragma: no cover
     # Use Fire to provide a CLI interface
-    logger.info("Starting SaagaLint server via command line")
     fire.Fire(run_server)

@@ -48,6 +48,9 @@ from typing import Callable, List, Type, TypeVar
 from mcp_suite.servers.qa import logger
 from mcp_suite.servers.qa.models.exception_data import ExceptionData
 
+# Bind the component field to the logger
+logger = logger.bind(component="decorators")
+
 # Define a generic type for the return value
 T = TypeVar("T")
 
