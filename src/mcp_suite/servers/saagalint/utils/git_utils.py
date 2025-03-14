@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from src.mcp_suite.servers.saagalint import logger
+from mcp_suite.servers.saagalint import logger
 
 
 def get_git_root():

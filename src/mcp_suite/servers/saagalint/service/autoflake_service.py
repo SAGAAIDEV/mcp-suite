@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Any, Dict, Union
 
 # Import logger from dev package
-from src.mcp_suite.servers.saagalint import logger
-from src.mcp_suite.servers.saagalint.config import ReportPaths
+from mcp_suite.servers.saagalint import logger
+from mcp_suite.servers.saagalint.config import ReportPaths
 
 
 def process_autoflake_results(

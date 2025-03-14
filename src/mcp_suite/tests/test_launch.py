@@ -24,8 +24,8 @@ def test_main():
 
                 # Verify the result
                 assert (
-                    result
-                    == "Hello from mcp-suite! (Redis functionality has been restructured)"
+                    result == "Hello from mcp-suite! "
+                    "(Redis functionality has been restructured)"
                 )
 
                 # Verify logger was called

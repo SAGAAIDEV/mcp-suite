@@ -3,14 +3,14 @@
 import json
 from typing import Any, Dict, List
 
-from src.mcp_suite.servers.saagalint import logger  # Import logger directly from loguru
-from src.mcp_suite.servers.saagalint.models.coverage_models import (
+from mcp_suite.servers.saagalint import logger  # Import logger directly from loguru
+from mcp_suite.servers.saagalint.models.coverage_models import (
     BranchCoverage,
     CoverageIssue,
 )
 
 # Remove redundant import and setup since it's already done in __init__.py
-# from src.mcp_suite.servers.dev.config.config import setup_logging
+# from mcp_suite.servers.dev.config.config import setup_logging
 # setup_logging("services")
 
 
@@ -72,7 +72,7 @@ def process_coverage_json(
                 file_data.get("missing_branches", []) or file_data.get("missing_lines")
             )
 
-            # Also check if any function or class (including empty string keys) has issues
+            # Check if any function or class has issues (including empty string keys)
             section_has_issues = False
             for section_type in ["functions", "classes"]:
                 sections = file_data.get(section_type, {})

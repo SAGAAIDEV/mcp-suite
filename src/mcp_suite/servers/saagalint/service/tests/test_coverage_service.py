@@ -6,10 +6,10 @@ from unittest.mock import mock_open, patch
 import pytest
 
 # Import the centralized logger
-from src.mcp_suite.servers.saagalint import logger
+from mcp_suite.servers.saagalint import logger
 
 # Use absolute imports
-from src.mcp_suite.servers.saagalint.service.coverage_service import (
+from mcp_suite.servers.saagalint.service.coverage_service import (
     _process_section,
     process_coverage_json,
 )
@@ -24,7 +24,7 @@ logger.info("Test coverage service module tests starting.")
 def capture_logs():
     """Capture logs during a test."""
     with patch(
-        "src.mcp_suite.servers.saagalint.service.coverage_service.logger"
+        "mcp_suite.servers.saagalint.service.coverage_service.logger"
     ) as mock_logger:
         yield mock_logger
 
@@ -224,14 +224,23 @@ class TestCoverageService:
         # Simulate a generic exception during processing
         with patch("builtins.open", mock_open(read_data=mock_json)):
             with patch(
-                "src.mcp_suite.servers.saagalint.service.coverage_service._process_section",
+                "mcp_suite.servers.saagalint.service.coverage_service._process_section",
                 side_effect=Exception("Generic error"),
             ):
                 issues = process_coverage_json("fake_path.json")
 
-        # We should get an empty list when a generic exception occurs
+        # The function returns an empty list when _process_section raises an exception
+        # Exception is caught and logged, then an empty list is returned
         assert issues == []
-        assert len(issues) == 0
+
+    def test_process_coverage_json_top_level_exception(self):
+        """Test handling a top-level exception during processing."""
+        # Simulate a generic exception at the top level of the function
+        with patch("builtins.open", side_effect=Exception("Top level error")):
+            issues = process_coverage_json("fake_path.json")
+
+        # We should get an empty list when a top-level exception occurs
+        assert issues == []
 
     def test_process_section(self):
         """Test processing a section of coverage data."""

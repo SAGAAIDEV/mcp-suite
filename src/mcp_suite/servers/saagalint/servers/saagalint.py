@@ -1,3 +1,4 @@
+import datetime
 import json
 import subprocess
 import time
@@ -5,24 +6,30 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
+# Import logging configuration
+from mcp_suite.servers.saagalint import logger
+
+# Import services using absolute imports instead of relative imports
+from mcp_suite.servers.saagalint.service.autoflake_service import (
+    process_autoflake_results,
+)
+from mcp_suite.servers.saagalint.service.coverage_service import (
+    process_coverage_json,
+)
+from mcp_suite.servers.saagalint.service.pytest_service import (
+    process_pytest_results,
+)
 from mcp_suite.servers.saagalint.utils.decorators import exception_handler
 
-# Import logging configuration
-from src.mcp_suite.servers.saagalint import logger
-
-from ..service.autoflake_service import process_autoflake_results
-
-# Import services
-from ..service.coverage_service import process_coverage_json
-from ..service.pytest_service import process_pytest_results
-
 # Import utils
-from ..utils.git_utils import get_git_root
+from mcp_suite.servers.saagalint.utils.git_utils import get_git_root
 
 # Configure logging
 
+# Store server start time
+SERVER_START_TIME = datetime.datetime.now().isoformat()
 
-mcp = FastMCP("precommit", settings={"host": "localhost", "port": "8081"})
+mcp = FastMCP("precommit", settings={"host": "localhost", "port": 8081, "reload": True})
 
 
 @mcp.tool()
@@ -250,7 +257,6 @@ async def run_autoflake(file_path: str = ".", fix: bool = True):
         "--ignore=E203,W503",  # Ignore whitespace before colon
         "--exclude=*cookiecutter*,*decorators.py",  # Exclude cookiecutter templates
         # and decorators.py
-        "--select=F401,F841",  # Select only unused imports (F401)
         # and unused variables (F841)
     ]
 
@@ -311,13 +317,88 @@ async def run_autoflake(file_path: str = ".", fix: bool = True):
     }
 
 
+# @mcp.tool()
+# @exception_handler()
+# async def divide(x, y):
+#     return x / y
+
+
+# @mcp.tool()
+# @exception_handler()
+# async def multiply(x, y):
+#     return x / y
+
+
+# @mcp.tool()
+# @exception_handler()
+# async def hot_reload():
+#     """Attempted hot reload of the server
+#
+# Reload the server to refresh tools without restarting the process.
+
+#     This function reloads Python modules and refreshes the server's tools,
+#     resources, and prompts without completely restarting the server process.
+#     Use this when you've made changes to tool implementations and want to
+#     see them take effect immediately.
+
+#     Returns:
+#         A message indicating the server has been reloaded
+#     """
+#     logger.info("Hot reloading server")
+
+#     try:
+#         # Get tools before reload
+#         before_tools = set(mcp._tool_manager._tools.keys())
+#         logger.info(f"Tools before reload: {before_tools}")
+
+#         # Reload the module and register any new tools
+#         new_mcp = get_reinitalized_mcp(mcp, __file__)
+#         logger.info(f"New tools: {new_mcp._tool_manager._tools.keys()}")
+
+#         # Get tools after reload
+#         after_tools = set(mcp._tool_manager._tools.keys())
+#         logger.info(f"Tools after reload: {after_tools}")
+
+#         # mcp._tool_manager._tools = new_mcp._tool_manager._tools.copy()
+#         # Replace the tool manager with the new one
+#         mcp._tool_manager = new_mcp._tool_manager
+#         mcp._setup_handlers()
+
+#         # Add a list_tools function if it doesn't exist
+
+#         return {
+#             "Status": "Reloaded",
+#             "Message": (
+#                 f"Server has been hot reloaded with updated tools. "
+#                 f"{len(after_tools)} tools available."
+#             ),
+#             "Tools": list(after_tools),
+#             "Instructions": (
+#                 "Your changes should now be available. "
+#                 "Try using the updated tools."
+#             ),
+#         }
+#     except Exception as e:
+#         logger.error(f"Error during hot reload: {e}", exc_info=True)
+#         return {
+#             "Status": "Error",
+#             "Message": f"Failed to hot reload: {str(e)}",
+#             "Instructions": "Try using restart_server instead.",
+#         }
+
+
 if __name__ == "__main__":  # pragma: no cover
     # Print service information
-    logger.info("Starting pytest MCP server")
+    logger.info("Starting pytest MCP serversasdf")
 
     # Run the MCP server
     try:
         mcp.settings.port = 8081
+        mcp.settings.debug = True
+        # mcp.settings.reload = True
+        # mcp.settings.reload_dirs = [
+        #     "/Users/andrew/saga/mcp-suite/src/mcp_suite/servers/saagalint/"
+        # ]
         mcp.run(transport="sse")
     except Exception as e:
         logger.exception(f"Error running MCP server: {e}")
