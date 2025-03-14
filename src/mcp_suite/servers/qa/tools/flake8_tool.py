@@ -14,6 +14,7 @@ Features:
 
 import subprocess
 
+from mcp_suite.servers.qa import logger
 from mcp_suite.servers.qa.service.flake8 import process_flake8_results
 from mcp_suite.servers.qa.utils.decorators import exception_handler
 from mcp_suite.servers.qa.utils.git_utils import get_git_root
@@ -21,7 +22,7 @@ from mcp_suite.servers.qa.utils.git_utils import get_git_root
 
 @exception_handler()
 async def run_flake8(
-    file_path: str = ".", max_line_length: int = 89, ignore: str = "E203,W503"
+    file_path: str = "src/", max_line_length: int = 89, ignore: str = "E203,W503"
 ):
     """
     Run flake8 analysis on specified files or directories.
@@ -38,18 +39,27 @@ async def run_flake8(
     Returns:
         dict: A dictionary containing analysis results and instructions
     """
+    logger.info(
+        f"Running flake8 on {file_path} with "
+        f"max_line_length={max_line_length}, ignore={ignore}"
+    )
+
     # Find git root directory
     git_root = get_git_root()
+    logger.debug(f"Git root directory: {git_root}")
 
     # Ensure reports directory exists
     reports_dir = git_root / "reports"
     reports_dir.mkdir(exist_ok=True)
+    logger.debug(f"Reports directory: {reports_dir}")
 
     # Define the output file path
     output_file = git_root / "flake8.json"
+    logger.debug(f"Output file: {output_file}")
 
     # Delete any existing flake8.json file to prevent appending issues
     if output_file.exists():
+        logger.debug("Removing existing flake8.json file")
         output_file.unlink()
 
     # Prepare the command
@@ -67,14 +77,19 @@ async def run_flake8(
     # Add the target file or directory
     if file_path != ".":
         cmd.append(file_path)
+        logger.debug(f"Using specified file path: {file_path}")
     else:
         cmd.append(".")
+        logger.debug("Using current directory")
 
     # Run the command
+    logger.info(f"Executing command: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=str(git_root), text=True, capture_output=True)
+    logger.debug(f"Command exit code: {result.returncode}")
 
     # Check if flake8 ran successfully
     if result.returncode != 0 and "No such file or directory" in result.stderr:
+        logger.error(f"Flake8 failed with error: {result.stderr}")
         return {
             "Status": "Error",
             "Message": f"Flake8 failed with error: {result.stderr}",
@@ -85,4 +100,5 @@ async def run_flake8(
         }
 
     # Process the results using the existing autoflake processing
+    logger.info("Processing flake8 results")
     return process_flake8_results(output_file)

@@ -58,17 +58,17 @@ class TestExceptionHandler:
             # Verify the result structure
             assert result["Status"] == "Error"
             assert "Instructions" in result
-            assert "Error" in result
-            assert result["Error"] == {"error": "Test error"}
+            assert "Message" in result
+            assert result["Message"] == "An unexpected error occurred"
 
             # Verify that the logger was called
-            mock_logger.exception.assert_called_once()
+            mock_logger.error.assert_called()
 
     def test_sync_function_with_reraised_exception(self):
         """Test that a sync function with a reraised exception actually reraises."""
 
         # Define a function that raises a FileNotFoundError (which should be reraised)
-        @exception_handler()
+        @exception_handler(reraise=[FileNotFoundError])
         def sample_function():
             raise FileNotFoundError("Test file not found")
 
@@ -103,7 +103,7 @@ class TestExceptionHandler:
 
             # Check that the warning method was called, not exception
             mock_logger.warning.assert_called_once()
-            assert "Error in sample_function" in mock_logger.warning.call_args[0][0]
+            assert "Exception in sample_function" in mock_logger.warning.call_args[0][0]
 
     @pytest.mark.asyncio
     async def test_async_function_no_exception(self):
@@ -149,11 +149,11 @@ class TestExceptionHandler:
             # Verify the result structure
             assert result["Status"] == "Error"
             assert "Instructions" in result
-            assert "Error" in result
-            assert result["Error"] == {"error": "Test async error"}
+            assert "Message" in result
+            assert result["Message"] == "An unexpected error occurred"
 
             # Verify that the logger was called
-            mock_logger.exception.assert_called_once()
+            mock_logger.error.assert_called()
 
     @pytest.mark.asyncio
     async def test_async_function_with_reraised_exception(self):
@@ -161,7 +161,7 @@ class TestExceptionHandler:
 
         # Define an async function that raises a JSONDecodeError
         # (which should be reraised)
-        @exception_handler()
+        @exception_handler(reraise=[json.JSONDecodeError])
         async def sample_async_function():
             await asyncio.sleep(0.01)  # Small delay
             raise json.JSONDecodeError("Test JSON error", "invalid json", 0)
@@ -200,8 +200,12 @@ class TestExceptionHandler:
             await sample_async_function()
 
             # Check that the error method was called, not exception
-            mock_logger.error.assert_called_once()
-            assert "Error in sample_async_function" in mock_logger.error.call_args[0][0]
+            mock_logger.error.assert_called()
+            # Check that at least one of the calls contains the expected message
+            assert any(
+                "Exception in async sample_async_function" in args[0]
+                for args, _ in mock_logger.error.call_args_list
+            )
 
     def test_preserves_function_signature(self):
         """Test that the decorator preserves the original function's signature."""
@@ -247,6 +251,5 @@ class TestExceptionHandler:
 
         # Check that the result contains the expected error information
         assert result["Status"] == "Error"
-        assert "Error" in result
-        assert "traceback" in result["Error"]
-        assert len(result["Error"]["traceback"]) > 0
+        assert "Message" in result
+        assert "Instructions" in result

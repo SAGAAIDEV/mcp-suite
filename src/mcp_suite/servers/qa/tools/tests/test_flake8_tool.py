@@ -76,8 +76,8 @@ class TestFlake8Tool:
         }
         mock_process_results.return_value = expected_result
 
-        # Call the function with default path
-        result = await run_flake8()
+        # Call the function with explicit "." path to cover the else branch
+        result = await run_flake8(file_path=".")
 
         # Verify the result matches what the mock returns
         assert result == expected_result

@@ -17,16 +17,10 @@ import subprocess
 import time
 from pathlib import Path
 
-# Remove logger imports
-# from mcp_suite.servers.qa import logger as main_logger
+from mcp_suite.servers.qa import logger
 from mcp_suite.servers.qa.service.pytest import process_pytest_results
 from mcp_suite.servers.qa.utils.decorators import exception_handler
 from mcp_suite.servers.qa.utils.git_utils import get_git_root
-
-# from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
-
-# Remove logger initialization
-# logger = get_component_logger("pytest")
 
 
 @exception_handler()
@@ -39,15 +33,18 @@ async def run_pytest(file_path: str):
     the results to provide helpful feedback.
 
     Args:
-        file_path: Path to the file or directory to test
+        file_path: Path to the file or directory ato test
                   Example: src/mcp_suite/base/redis_db/tests/test_redis_manager.py
                   Use "." to run all tests
 
     Returns:
         dict: A dictionary containing test results and instructions
     """
+    logger.info(f"Running pytest on {file_path}")
+
     # Find git root directory
     git_root = get_git_root()
+    logger.debug(f"Git root directory: {git_root}")
 
     # Change to git root directory and run pytest
     cmd = [
@@ -59,6 +56,10 @@ async def run_pytest(file_path: str):
     ]
     if file_path != ".":
         cmd.append(file_path)
+        logger.debug(f"Using specified file path: {file_path}")
+    else:
+        logger.debug("Running tests on all files")
+
     cmd.extend(
         [
             "--json-report",
@@ -68,13 +69,16 @@ async def run_pytest(file_path: str):
         ]
     )
 
+    logger.info(f"Executing command: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=str(git_root), text=True, capture_output=True)
+    logger.debug(f"Command exit code: {result.returncode}")
 
     # Check if pytest command failed to execute properly
     if (
         result.returncode != 0
         and not Path(git_root / "reports" / "pytest_results.json").exists()
     ):
+        logger.error(f"Pytest failed with error: {result.stderr}")
         return {
             "Status": "Error",
             "Message": f"Pytest failed with error: {result.stderr}",
@@ -84,15 +88,18 @@ async def run_pytest(file_path: str):
             ),
         }
 
+    logger.debug("Waiting for file system to sync...")
     time.sleep(1)
 
     # Process the results to get both collection errors and test failures
+    logger.info("Processing pytest results")
     processed_results = process_pytest_results("./reports/pytest_results.json")
 
     # Check for collection errors first
     if processed_results.failed_collections:
         # Return the first collection error to fix
         error = processed_results.failed_collections[0]
+        logger.warning(f"Collection error found: {error.model_dump()}")
 
         return {
             "Failed Collection": error.model_dump(),
@@ -107,6 +114,7 @@ async def run_pytest(file_path: str):
     # If no collection errors, check for test failures
     if processed_results.failed_tests:
         failure = processed_results.failed_tests[0]
+        logger.warning(f"Test failure found: {failure.model_dump()}")
 
         return {
             "Failed Tests": failure.model_dump(),
@@ -120,6 +128,7 @@ async def run_pytest(file_path: str):
         }
 
     # If no failures of any kind, return success
+    logger.info("All tests passed successfully!")
     return {
         "Status": "Success",
         "Summary": processed_results.summary.model_dump(),

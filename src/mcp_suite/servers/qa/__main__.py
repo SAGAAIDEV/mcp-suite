@@ -24,26 +24,25 @@ Usage:
 """
 
 import datetime
-from pathlib import Path
 
 import fire
 from mcp.server.fastmcp import FastMCP
 
-# Import tool registration function
+# Import logger and tool registration function
+from mcp_suite.servers.qa import logger
 from mcp_suite.servers.qa.tools.register_tools import register_tools
 
 # Store server start time
 SERVER_START_TIME = datetime.datetime.now().isoformat()
-
-# Create logs directory if it doesn't exist
-log_path = Path(__file__).parent / "logs"
-log_path.mkdir(exist_ok=True)
+logger.info(f"Server starting at {SERVER_START_TIME}")
 
 # Create the MCP server instance
 mcp = FastMCP("precommit", settings={"host": "localhost", "port": 8081, "reload": True})
+logger.info("MCP server instance created")
 
 # Register all tools
 register_tools(mcp)
+logger.info("All tools registered")
 
 
 def run_server(transport="stdio", host="localhost", port=8081, debug=False):
@@ -69,13 +68,21 @@ def run_server(transport="stdio", host="localhost", port=8081, debug=False):
     mcp.settings.port = port
     mcp.settings.debug = debug
 
+    logger.info(
+        f"Starting server with transport={transport}, "
+        f"host={host}, port={port}, debug={debug}"
+    )
+
     # Run the server with the specified transport
     try:
+        logger.info("Server starting...")
         mcp.run(transport=transport)
-    except Exception:
+    except Exception as e:
+        logger.exception(f"Server failed to start: {e}")
         raise
 
 
 if __name__ == "__main__":  # pragma: no cover
     # Use Fire to provide a CLI interface
+    logger.info("Starting CLI interface with Fire")
     fire.Fire(run_server)

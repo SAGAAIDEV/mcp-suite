@@ -4,14 +4,8 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Union
 
-# Remove logger imports
-# from mcp_suite.servers.qa import logger as main_logger
+from mcp_suite.servers.qa import logger
 from mcp_suite.servers.qa.config import ReportPaths
-
-# from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
-
-# Remove logger initialization
-# logger = get_component_logger("autoflake")
 
 
 def process_flake8_results(
@@ -26,19 +20,16 @@ def process_flake8_results(
     Returns:
         Dictionary containing summary and issues
     """
-    # Remove logging calls
-    # logger.info(f"Processing autoflake results from {input_file}")
-    # main_logger.info(f"Processing autoflake results from {input_file}")
+    logger.info(f"Processing flake8 results from {input_file}")
 
     # Convert string paths to Path objects if needed
     input_path = Path(input_file) if isinstance(input_file, str) else input_file
+    logger.debug(f"Input path: {input_path}")
 
     try:
         # Check if the file exists
         if not input_path.exists():
-            # Remove logging calls
-            # logger.warning(f"Autoflake results file not found: {input_path}")
-            # main_logger.warning(f"Autoflake results file not found: {input_path}")
+            logger.warning(f"Flake8 results file not found: {input_path}")
             return {
                 "Status": "Success",
                 "Message": "No issues found (results file not present).",
@@ -48,6 +39,7 @@ def process_flake8_results(
             }
 
         # Load the JSON file
+        logger.debug(f"Loading JSON from {input_path}")
         with open(input_path, "r") as f:
             results_data = json.load(f)
 
@@ -59,9 +51,7 @@ def process_flake8_results(
 
         # If no issues found, return success
         if not all_issues:
-            # Remove logging calls
-            # logger.info("No autoflake issues found")
-            # main_logger.info("No autoflake issues found in results file")
+            logger.info("No flake8 issues found")
             return {
                 "Status": "Success",
                 "Message": (
@@ -75,11 +65,7 @@ def process_flake8_results(
 
         # Get the first issue to fix
         first_issue = all_issues[0]
-
-        # Extract relevant information
-        # Remove logging calls
-        # logger.info(f"Found autoflake issue: {json.dumps(first_issue, indent=2)}")
-        # main_logger.warning("Found autoflake issues in results file")
+        logger.info(f"Found flake8 issue: {json.dumps(first_issue, indent=2)}")
 
         return {
             "Status": "Issues Found",
@@ -92,9 +78,7 @@ def process_flake8_results(
 
     except json.JSONDecodeError as e:
         error_msg = f"Error: Invalid JSON in {input_path}: {str(e)}"
-        # Remove logging calls
-        # logger.error(error_msg)
-        # main_logger.error(error_msg)
+        logger.error(error_msg)
         return {
             "Status": "Error",
             "Message": error_msg,
@@ -105,10 +89,8 @@ def process_flake8_results(
         }
 
     except Exception as e:
-        error_msg = f"Error processing autoflake results: {str(e)}"
-        # Remove logging calls
-        # logger.exception(error_msg)
-        # main_logger.exception(error_msg)
+        error_msg = f"Error processing flake8 results: {str(e)}"
+        logger.exception(error_msg)
         return {
             "Status": "Error",
             "Message": error_msg,

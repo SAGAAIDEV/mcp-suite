@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Union
 
+from mcp_suite.servers.qa import logger
 from mcp_suite.servers.qa.config import ReportPaths
 from mcp_suite.servers.qa.models.pytest_models import (
     PytestCollectionFailure,
@@ -32,74 +33,117 @@ def process_pytest_results(
         json.JSONDecodeError: If the input file isn't valid JSON
         KeyError: If the input file doesn't have the expected structure
     """
+    logger.info(f"Processing pytest results from {input_file}")
+
     # Convert string paths to Path objects if needed
     input_path = Path(input_file) if isinstance(input_file, str) else input_file
     output_path = Path(output_file) if isinstance(output_file, str) else output_file
+    logger.debug(f"Input path: {input_path}, Output path: {output_path}")
 
     try:
         # Load the JSON file
+        logger.debug(f"Loading JSON from {input_path}")
         with open(input_path, "r") as f:
             results_data = json.load(f)
 
         # Ensure tests key exists
         if "tests" not in results_data:
             error_msg = f"Error: 'tests' key not found in {input_path}"
+            logger.error(error_msg)
             return PytestResults(summary=PytestSummary(), error=error_msg)
 
         # Extract failed collections
         failed_collections = []
         if "collectors" in results_data:
-            for collector in results_data["collectors"]:
-                if collector.get("outcome") == "failed":
-                    failed_collections.append(PytestCollectionFailure(**collector))
+            logger.debug("Processing collection errors")
+            # Handle both formats: list of collectors or dict with errors key
+            if isinstance(results_data["collectors"], list):
+                for collector in results_data["collectors"]:
+                    if collector.get("outcome") == "failed":
+                        failed_collections.append(
+                            PytestCollectionFailure(
+                                nodeid=collector.get("nodeid", "Unknown"),
+                                outcome=collector.get("outcome", "failed"),
+                                longrepr=collector.get("longrepr", "Unknown error"),
+                            )
+                        )
+            elif (
+                isinstance(results_data["collectors"], dict)
+                and "errors" in results_data["collectors"]
+            ):
+                for error in results_data["collectors"]["errors"]:
+                    failed_collections.append(
+                        PytestCollectionFailure(
+                            nodeid=error.get("nodeid", "Unknown"),
+                            outcome="failed",
+                            longrepr=error.get("longrepr", "Unknown error"),
+                        )
+                    )
+            if failed_collections:
+                logger.warning(f"Found {len(failed_collections)} collection errors")
 
         # Extract failed tests
         failed_tests = []
-        for test in results_data["tests"]:
-            if test.get("outcome") == "failed":
-                # Create a copy of the test data without the keywords field
-                test_copy = test.copy()
-                if "keywords" in test_copy:
-                    test_copy.pop("keywords")  # Remove the keywords field
-                failed_tests.append(PytestFailedTest(**test_copy))
+        if "tests" in results_data:
+            logger.debug("Processing test failures")
+            for test in results_data["tests"]:
+                if test.get("outcome") == "failed":
+                    failed_tests.append(
+                        PytestFailedTest(
+                            nodeid=test.get("nodeid", "Unknown"),
+                            outcome=test.get("outcome", "Unknown"),
+                            longrepr=test.get("longrepr", None),
+                            duration=test.get("duration", None),
+                            lineno=test.get("lineno", 0),
+                            setup=test.get("setup", {}),
+                            call=test.get("call", {}),
+                            teardown=test.get("teardown", {}),
+                        )
+                    )
+            if failed_tests:
+                logger.warning(f"Found {len(failed_tests)} test failures")
 
-        # Create the summary
-        summary_data = results_data.get("summary", {})
+        # Extract summary
         summary = PytestSummary(
-            total=summary_data.get("total", 0),
-            failed=summary_data.get("failed", 0),
-            passed=summary_data.get("passed", 0),
-            skipped=summary_data.get("skipped", 0),
-            errors=summary_data.get("errors", 0),
-            xfailed=summary_data.get("xfailed", 0),
-            xpassed=summary_data.get("xpassed", 0),
-            collected=summary_data.get("collected", 0),
+            total=results_data.get("summary", {}).get("total", 0),
+            failed=results_data.get("summary", {}).get("failed", 0),
+            passed=results_data.get("summary", {}).get("passed", 0),
+            skipped=results_data.get("summary", {}).get("skipped", 0),
+            errors=results_data.get("summary", {}).get("errors", 0),
+            xfailed=results_data.get("summary", {}).get("xfailed", 0),
+            xpassed=results_data.get("summary", {}).get("xpassed", 0),
+            collected=results_data.get("summary", {}).get("collected", 0),
             collection_failures=len(failed_collections),
         )
+        logger.info(f"Test summary: {summary.model_dump()}")
 
-        # Create the result object
-        result = PytestResults(
+        # Create the results object
+        results = PytestResults(
             summary=summary,
             failed_collections=failed_collections,
             failed_tests=failed_tests,
         )
 
-        # Write to the output file
+        # Write the results to the output file
+        logger.debug(f"Writing results to {output_path}")
         with open(output_path, "w") as f:
-            f.write(result.model_dump_json(indent=2))
+            json.dump(results.model_dump(), f, indent=2)
 
-        return result
+        return results
 
     except FileNotFoundError:
-        error_msg = f"Error: Input file not found: {input_path}"
+        error_msg = f"Error: File not found: {input_path}"
+        logger.error(error_msg)
         return PytestResults(summary=PytestSummary(), error=error_msg)
 
     except json.JSONDecodeError as e:
         error_msg = f"Error: Invalid JSON in {input_path}: {str(e)}"
+        logger.error(error_msg)
         return PytestResults(summary=PytestSummary(), error=error_msg)
 
     except Exception as e:
         error_msg = f"Error processing pytest results: {str(e)}"
+        logger.exception(error_msg)
         return PytestResults(summary=PytestSummary(), error=error_msg)
 
 

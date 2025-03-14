@@ -180,7 +180,7 @@ class TestProcessPytestResults:
 
         # Verify - check that the result is as expected
         assert isinstance(result, PytestResults)
-        assert "Error: Input file not found" in result.error
+        assert "Error: File not found:" in result.error
         assert result.summary.total == 0
         assert len(result.failed_collections) == 0
         assert len(result.failed_tests) == 0
@@ -303,3 +303,51 @@ class TestProcessPytestResults:
         assert len(result.failed_tests) == 0
         assert len(result.failed_collections) == 0
         # The function should still return a result even if writing fails
+
+    def test_process_with_collectors_dict(self):
+        """Test processing results with collectors as a dictionary."""
+        # Setup - create mock data with collectors as a dictionary
+        mock_results = {
+            "tests": [],
+            "collectors": {
+                "errors": [
+                    {
+                        "nodeid": "test_file.py",
+                        "longrepr": "ImportError: No module named 'missing_module'",
+                    }
+                ]
+            },
+            "summary": {
+                "total": 0,
+                "failed": 0,
+                "passed": 0,
+                "skipped": 0,
+                "errors": 1,
+                "xfailed": 0,
+                "xpassed": 0,
+                "collected": 0,
+            },
+        }
+
+        # Mock the open function to return our mock data
+        mock_file = mock_open(read_data=json.dumps(mock_results))
+
+        with (
+            patch("builtins.open", mock_file),
+            patch("pathlib.Path.exists", return_value=True),
+        ):
+
+            # Exercise - call the function
+            result = process_pytest_results()
+
+        # Verify - check that the result is as expected
+        assert isinstance(result, PytestResults)
+        assert result.summary.total == 0
+        assert result.summary.errors == 1
+        assert len(result.failed_collections) == 1
+        assert result.failed_collections[0].nodeid == "test_file.py"
+        assert result.failed_collections[0].outcome == "failed"
+        assert (
+            result.failed_collections[0].longrepr
+            == "ImportError: No module named 'missing_module'"
+        )

@@ -12,16 +12,10 @@ Features:
 - Generate detailed reports for specific files
 """
 
-# Remove logger imports
-# from mcp_suite.servers.qa import logger as main_logger
+from mcp_suite.servers.qa import logger
 from mcp_suite.servers.qa.service.coverage import process_coverage_json
 from mcp_suite.servers.qa.utils.decorators import exception_handler
 from mcp_suite.servers.qa.utils.git_utils import get_git_root
-
-# from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
-
-# Remove logger initialization
-# logger = get_component_logger("coverage")
 
 
 @exception_handler()
@@ -39,34 +33,40 @@ async def run_coverage(file_path):
     Returns:
         dict: A dictionary containing coverage results and instructions
     """
+    logger.info(f"Analyzing code coverage for {file_path}")
+
     # Find git root directory
     git_root = get_git_root()
+    logger.debug(f"Git root directory: {git_root}")
 
     # Process coverage data
     coverage_file = git_root / "reports" / "coverage.json"
+    logger.debug(f"Coverage file: {coverage_file}")
+
+    logger.info("Processing coverage data")
     coverage_issues = process_coverage_json(str(coverage_file), file_path)
 
     # If no issues found, return success
     if not coverage_issues:
+        logger.info("No coverage issues found")
         return {
             "Status": "Success",
             "Message": "Great job! No coverage issues found.",
             "Instructions": (
-                "Your code has excellent test coverage. Keep up the good work!"
+                "Your code has excellent test coverage. " "Keep up the good work!"
             ),
         }
 
     # Return the first issue to fix
-    issue = coverage_issues[0]
+    logger.warning(f"Found {len(coverage_issues)} coverage issues")
+    logger.debug(f"First issue: {coverage_issues[0]}")
 
     return {
-        "Coverage Issue": issue.model_dump(),
+        "Status": "Issues Found",
+        "Issues": coverage_issues,
         "Instructions": (
-            "Let's improve your test coverage! I've identified an area of code "
-            "that needs more tests. Here's what you can do:\n\n"
-            "1. Create a new test that exercises the uncovered lines\n"
-            "2. Make sure your test covers all branches and conditions\n"
-            "3. Run the tests again to verify improved coverage\n\n"
-            "I'll help you write the tests to cover these lines."
+            "Let's improve your test coverage! I've identified some areas of code "
+            "that aren't covered by tests. Let's work together to write tests "
+            "for these areas to ensure your code is robust and reliable."
         ),
     }
