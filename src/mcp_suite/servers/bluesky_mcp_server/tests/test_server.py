@@ -5,7 +5,9 @@ from unittest import mock
 
 import pytest
 
-from src.mcp_suite.servers.bluesky_mcp_server.server import bluesky
+# First mock the BlueskyService before importing the module
+with mock.patch('src.mcp_suite.servers.bluesky_mcp_server.model.service.BlueskyService') as _:
+    from src.mcp_suite.servers.bluesky_mcp_server.server import bluesky
 
 
 @pytest.fixture

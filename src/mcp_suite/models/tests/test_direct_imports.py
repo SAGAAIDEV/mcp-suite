@@ -1,43 +1,56 @@
 """
 Tests for direct imports of modules to ensure coverage.
 """
+from unittest.mock import patch
 
 
-def test_direct_import_redis_model():
+@patch("src.mcp_suite.models.redis_store.Store")
+def test_direct_import_redis_model(mock_store):
     """Test direct import of redis_model module."""
-    from src.mcp_suite.models.redis_model import (
-        UUID,
-        RedisModel,
-        T,
-        datetime,
-        get_redis_store,
-        logger,
-        uuid4,
-    )
+    # Mock the get_redis_store function before importing
+    with patch("src.mcp_suite.models.redis_store.get_redis_store") as mock_get_store:
+        # Set up the mock
+        mock_get_store.return_value = mock_store
 
-    # Verify imports
-    assert RedisModel is not None
-    assert T is not None
-    assert datetime is not None
-    assert UUID is not None
-    assert uuid4 is not None
-    assert logger is not None
-    assert get_redis_store is not None
+        from src.mcp_suite.models.redis_model import (
+            UUID,
+            RedisModel,
+            T,
+            datetime,
+            get_redis_store,
+            logger,
+            uuid4,
+        )
 
-    # Create a simple model
-    class TestModel(RedisModel):
-        test_field: str
+        # Verify imports
+        assert RedisModel is not None
+        assert T is not None
+        assert datetime is not None
+        assert UUID is not None
+        assert uuid4 is not None
+        assert logger is not None
+        assert get_redis_store is not None
 
-    # Create an instance
-    model = TestModel(name="Test", test_field="value")
+        # Create a simple model
+        class TestModel(RedisModel):
+            test_field: str
 
-    # Test serializers
-    assert isinstance(model.serialize_id(model.id), str)
-    assert isinstance(model.serialize_datetime(model.created_at), str)
+        # Create an instance
+        model = TestModel(name="Test", test_field="value")
+
+        # Test serializers
+        assert isinstance(model.serialize_id(model.id), str)
+        assert isinstance(model.serialize_datetime(model.created_at), str)
 
 
-def test_direct_import_redis_store():
+@patch("src.mcp_suite.models.redis_store.REDIS", None)
+@patch("src.mcp_suite.models.redis_store.Store")
+def test_direct_import_redis_store(mock_store, mock_redis=None):
     """Test direct import of redis_store module."""
+    # Configure the mock before import
+    mock_store_instance = mock_store.return_value
+
+    # Import after mocking
     from src.mcp_suite.models.redis_store import (
         RedisConfig,
         Store,
