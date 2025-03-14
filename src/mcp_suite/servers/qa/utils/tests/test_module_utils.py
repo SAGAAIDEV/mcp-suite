@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mcp_suite.servers.saagalint.utils.module_utils import get_reinitalized_mcp
+from mcp_suite.servers.qa.utils.module_utils import get_reinitalized_mcp
 
 
 @pytest.fixture

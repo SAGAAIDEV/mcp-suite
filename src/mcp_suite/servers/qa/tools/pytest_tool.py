@@ -17,11 +17,11 @@ import subprocess
 import time
 from pathlib import Path
 
-from mcp_suite.servers.saagalint import logger as main_logger
-from mcp_suite.servers.saagalint.service.pytest_service import process_pytest_results
-from mcp_suite.servers.saagalint.utils.decorators import exception_handler
-from mcp_suite.servers.saagalint.utils.git_utils import get_git_root
-from mcp_suite.servers.saagalint.utils.logging_utils import get_component_logger
+from mcp_suite.servers.qa import logger as main_logger
+from mcp_suite.servers.qa.service.pytest_service import process_pytest_results
+from mcp_suite.servers.qa.utils.decorators import exception_handler
+from mcp_suite.servers.qa.utils.git_utils import get_git_root
+from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
 
 # Get a component-specific logger
 logger = get_component_logger("pytest")

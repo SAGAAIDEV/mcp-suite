@@ -11,16 +11,16 @@ a command-line interface using Google Fire.
 
 Usage:
     # Run with default settings (stdio transport)
-    python -m src.mcp_suite.servers.saagalint
+    python -m src.mcp_suite.servers.qa
 
     # Run with SSE transport
-    python -m src.mcp_suite.servers.saagalint --transport=sse
+    python -m src.mcp_suite.servers.qa --transport=sse
 
     # Run with SSE transport on a specific host and port
-    python -m src.mcp_suite.servers.saagalint --transport=sse --host=0.0.0.0 --port=8082
+    python -m src.mcp_suite.servers.qa --transport=sse --host=0.0.0.0 --port=8082
 
     # Run with debug mode enabled
-    python -m src.mcp_suite.servers.saagalint --debug=True
+    python -m src.mcp_suite.servers.qa --debug=True
 """
 
 import datetime
@@ -30,10 +30,10 @@ import fire
 from mcp.server.fastmcp import FastMCP
 
 # Import logging configuration
-from mcp_suite.servers.saagalint import logger
+from mcp_suite.servers.qa import logger
 
 # Import tool registration function
-from mcp_suite.servers.saagalint.tools.register_tools import register_tools
+from mcp_suite.servers.qa.tools.register_tools import register_tools
 
 # Store server start time
 SERVER_START_TIME = datetime.datetime.now().isoformat()

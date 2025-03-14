@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import Any, Dict, Union
 
 # Import logger from dev package
-from mcp_suite.servers.saagalint import logger as main_logger
-from mcp_suite.servers.saagalint.config import ReportPaths
-from mcp_suite.servers.saagalint.utils.logging_utils import get_component_logger
+from mcp_suite.servers.qa import logger as main_logger
+from mcp_suite.servers.qa.config import ReportPaths
+from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
 
 # Get a component-specific logger
 logger = get_component_logger("autoflake")

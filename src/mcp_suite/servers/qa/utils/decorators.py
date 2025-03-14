@@ -45,8 +45,8 @@ import sys
 from pathlib import Path
 from typing import Callable, List, Type, TypeVar
 
-from mcp_suite.servers.saagalint import logger
-from mcp_suite.servers.saagalint.models.exception_data import ExceptionData
+from mcp_suite.servers.qa import logger
+from mcp_suite.servers.qa.models.exception_data import ExceptionData
 
 # Define a generic type for the return value
 T = TypeVar("T")

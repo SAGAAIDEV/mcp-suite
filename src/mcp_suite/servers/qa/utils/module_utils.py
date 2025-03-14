@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any
 
 # Import logging configuration
-from mcp_suite.servers.saagalint import logger
+from mcp_suite.servers.qa import logger
 
 
 def get_reinitalized_mcp(mcp_instance: Any, file: str) -> Any:

@@ -4,11 +4,11 @@ import json
 from typing import Any, Dict, List
 
 # Import logger directly from loguru
-from mcp_suite.servers.saagalint.models.coverage_models import (
+from mcp_suite.servers.qa.models.coverage_models import (
     BranchCoverage,
     CoverageIssue,
 )
-from mcp_suite.servers.saagalint.utils.logging_utils import get_component_logger
+from mcp_suite.servers.qa.utils.logging_utils import get_component_logger
 
 # Remove redundant import and setup since it's already done in __init__.py
 # from mcp_suite.servers.dev.config.config import setup_logging

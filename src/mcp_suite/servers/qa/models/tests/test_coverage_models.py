@@ -2,7 +2,7 @@
 
 import pytest
 
-from mcp_suite.servers.saagalint.models.coverage_models import (
+from mcp_suite.servers.qa.models.coverage_models import (
     BranchCoverage,
     CoverageIssue,
 )

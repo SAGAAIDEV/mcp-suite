@@ -1,6 +1,6 @@
 """Tests for exception data models."""
 
-from mcp_suite.servers.saagalint.models.exception_data import (
+from mcp_suite.servers.qa.models.exception_data import (
     ExceptionData,
     TracebackEntry,
 )

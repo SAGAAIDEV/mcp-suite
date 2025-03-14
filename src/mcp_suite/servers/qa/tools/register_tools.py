@@ -13,10 +13,10 @@ Available tools:
 
 from mcp.server.fastmcp import FastMCP
 
-from mcp_suite.servers.saagalint import logger
-from mcp_suite.servers.saagalint.tools.autoflake_tool import run_autoflake
-from mcp_suite.servers.saagalint.tools.coverage_tool import run_coverage
-from mcp_suite.servers.saagalint.tools.pytest_tool import run_pytest
+from mcp_suite.servers.qa import logger
+from mcp_suite.servers.qa.tools.autoflake_tool import run_autoflake
+from mcp_suite.servers.qa.tools.coverage_tool import run_coverage
+from mcp_suite.servers.qa.tools.pytest_tool import run_pytest
 
 
 def register_tools(mcp: FastMCP) -> None:
