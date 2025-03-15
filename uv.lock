@@ -597,6 +597,15 @@ wheels = [
 ]
 
 [[package]]
+name = "httpx-sse"
+version = "0.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4c/60/8f4281fa9bbf3c8034fd54c0e7412e66edbab6bc74c4996bd616f8d0406e/httpx-sse-0.4.0.tar.gz", hash = "sha256:1e81a3a3070ce322add1d3529ed42eb5f70817f45ed6ec915ab753f961139721", size = 12624 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e1/9b/a181f281f65d776426002f330c31849b86b31fc9d848db62e16f03ff739f/httpx_sse-0.4.0-py3-none-any.whl", hash = "sha256:f329af6eae57eaa2bdfd962b42524764af68075ea87370a2de920af5341e318f", size = 7819 },
+]
+
+[[package]]
 name = "identify"
 version = "2.6.9"
 source = { registry = "https://pypi.org/simple" }
@@ -883,6 +892,19 @@ wheels = [
 ]
 
 [[package]]
+name = "langchain-mcp-adapters"
+version = "0.0.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "langchain-core" },
+    { name = "mcp" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c8/8a/f29de9bd32162a6fa0b357fc3446136eb06831c10c5d8b2fc0116e4c74c8/langchain_mcp_adapters-0.0.4.tar.gz", hash = "sha256:21fb180580de16c26025352f43b61d2a8500929856cc2a090c5dd85984bfaaf4", size = 5783 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ac/3c/a0c8395b5ed522b74aacc3899ff18e8078bffc64570d509e4c1ad360086b/langchain_mcp_adapters-0.0.4-py3-none-any.whl", hash = "sha256:c125cc318b151ccd468574611204ad794f92f4a8379f90c1fcf5af8645c9c3b8", size = 7053 },
+]
+
+[[package]]
 name = "langgraph"
 version = "0.3.8"
 source = { registry = "https://pypi.org/simple" }
@@ -911,6 +933,18 @@ wheels = [
 ]
 
 [[package]]
+name = "langgraph-cli"
+version = "0.1.77"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/68/26/b26b1ad8c75981f00f71dffabf9ac5421ee7af75d1e3a465aec4f9b66eff/langgraph_cli-0.1.77.tar.gz", hash = "sha256:c0aee7d20245c1c401eb159fee82a20a557d7cdcce25c5de5fa53db877be1b79", size = 29580 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d2/4e/92248c9ae144a9cb6f12ed6d74b9d532bea18e6612ec728cc286c3a794cb/langgraph_cli-0.1.77-py3-none-any.whl", hash = "sha256:5a4ccebba8e0e0a3528c5a80988bba3e2b1857f3c1bb58082cfcb082c7ba03ae", size = 32043 },
+]
+
+[[package]]
 name = "langgraph-prebuilt"
 version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -934,6 +968,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3b/b0/a69107db6f891a8193f678490a6a4fe4b6543c806e6a203db79d8b4e4e9a/langgraph_sdk-0.1.56.tar.gz", hash = "sha256:35af7a73e4f07f343e1d45e2ce117ea706a8979a77c600e273df4f73c5f02d2c", size = 42694 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/51/84/862facd9d0e7b56604be15464998b193e58fb66cf1a8fa1804a07eda6c27/langgraph_sdk-0.1.56-py3-none-any.whl", hash = "sha256:c9ab128dcd960f948cf054013736d70f9f6668ac7a6aaa2e43023c528766c906", size = 45786 },
+]
+
+[[package]]
+name = "langgraph-swarm"
+version = "0.0.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "langchain-core" },
+    { name = "langgraph" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/30/42/6a5405d3a316b62a671d4c36376db2cfd1a00f644ef140fc09f9a0c30a4d/langgraph_swarm-0.0.5.tar.gz", hash = "sha256:7cba472c50975cab7e97d36c9480f8b36db3b3b9e1470a423f1a72d5a707aa94", size = 10053 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/70/1c/a02edd3d466d2ef7a7ba3ec62953263497826ada0aa17f68fbebb8647c6e/langgraph_swarm-0.0.5-py3-none-any.whl", hash = "sha256:4a0c72b074e0cbb5038f3d8ff5643515726bfb9015600750426039e5ea08de73", size = 7872 },
 ]
 
 [[package]]
@@ -1081,6 +1128,25 @@ wheels = [
 ]
 
 [[package]]
+name = "mcp"
+version = "1.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "httpx" },
+    { name = "httpx-sse" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "sse-starlette" },
+    { name = "starlette" },
+    { name = "uvicorn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6b/b6/81e5f2490290351fc97bf46c24ff935128cb7d34d68e3987b522f26f7ada/mcp-1.3.0.tar.gz", hash = "sha256:f409ae4482ce9d53e7ac03f3f7808bcab735bdfc0fba937453782efb43882d45", size = 150235 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d0/d2/a9e87b506b2094f5aa9becc1af5178842701b27217fa43877353da2577e3/mcp-1.3.0-py3-none-any.whl", hash = "sha256:2829d67ce339a249f803f22eba5e90385eafcac45c94b00cab6cef7e8f217211", size = 70672 },
+]
+
+[[package]]
 name = "mcp-suite"
 version = "0.1.0"
 source = { editable = "." }
@@ -1097,7 +1163,10 @@ dependencies = [
     { name = "hatchling" },
     { name = "ipykernel" },
     { name = "langchain-anthropic" },
+    { name = "langchain-mcp-adapters" },
     { name = "langgraph" },
+    { name = "langgraph-cli" },
+    { name = "langgraph-swarm" },
     { name = "langsmith" },
     { name = "loguru" },
     { name = "matplotlib" },
@@ -1145,7 +1214,10 @@ requires-dist = [
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "isort", marker = "extra == 'dev'" },
     { name = "langchain-anthropic", specifier = ">=0.3.9" },
+    { name = "langchain-mcp-adapters", specifier = ">=0.0.4" },
     { name = "langgraph", specifier = ">=0.3.5" },
+    { name = "langgraph-cli", specifier = ">=0.1.77" },
+    { name = "langgraph-swarm", specifier = ">=0.0.5" },
     { name = "langsmith", specifier = ">=0.3.11" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "matplotlib", specifier = ">=3.10.1" },
@@ -1574,6 +1646,19 @@ wheels = [
 ]
 
 [[package]]
+name = "pydantic-settings"
+version = "2.8.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/88/82/c79424d7d8c29b994fb01d277da57b0a9b09cc03c3ff875f9bd8a86b2145/pydantic_settings-2.8.1.tar.gz", hash = "sha256:d5c663dfbe9db9d5e1c646b2e161da12f0d734d422ee56f567d0ea2cee4e8585", size = 83550 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0b/53/a64f03044927dc47aafe029c42a5b7aabc38dfb813475e0e1bf71c4a59d0/pydantic_settings-2.8.1-py3-none-any.whl", hash = "sha256:81942d5ac3d905f7f3ee1a70df5dfb62d5569c12f51a5a647defc1c3d9ee2e9c", size = 30839 },
+]
+
+[[package]]
 name = "pyflakes"
 version = "3.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1914,6 +1999,19 @@ wheels = [
 ]
 
 [[package]]
+name = "sse-starlette"
+version = "2.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "starlette" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/71/a4/80d2a11af59fe75b48230846989e93979c892d3a20016b42bb44edb9e398/sse_starlette-2.2.1.tar.gz", hash = "sha256:54470d5f19274aeed6b2d473430b08b4b379ea851d953b11d7f1c4a2c118b419", size = 17376 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d9/e0/5b8bd393f27f4a62461c5cf2479c75a2cc2ffa330976f9f00f5f6e4f50eb/sse_starlette-2.2.1-py3-none-any.whl", hash = "sha256:6410a3d3ba0c89e7675d4c273a301d64649c03a5ef1ca101f10b47f895fd0e99", size = 10120 },
+]
+
+[[package]]
 name = "stack-data"
 version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1925,6 +2023,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/28/e3/55dcc2cfbc3ca9c29519eb6884dd1415ecb53b0e934862d3559ddcb7e20b/stack_data-0.6.3.tar.gz", hash = "sha256:836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9", size = 44707 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f1/7b/ce1eafaf1a76852e2ec9b22edecf1daa58175c090266e9f6c64afcd81d91/stack_data-0.6.3-py3-none-any.whl", hash = "sha256:d5558e0c25a4cb0853cddad3d77da9891a08cb85dd9f9f91b9f8cd66e511e695", size = 24521 },
+]
+
+[[package]]
+name = "starlette"
+version = "0.46.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/04/1b/52b27f2e13ceedc79a908e29eac426a63465a1a01248e5f24aa36a62aeb3/starlette-0.46.1.tar.gz", hash = "sha256:3c88d58ee4bd1bb807c0d1acb381838afc7752f9ddaec81bbe4383611d833230", size = 2580102 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a0/4b/528ccf7a982216885a1ff4908e886b8fb5f19862d1962f56a3fce2435a70/starlette-0.46.1-py3-none-any.whl", hash = "sha256:77c74ed9d2720138b25875133f3a2dae6d854af2ec37dceb56aef370c1d8a227", size = 71995 },
 ]
 
 [[package]]
@@ -2027,6 +2137,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/aa/63/e53da845320b757bf29ef6a9062f5c669fe997973f966045cb019c3f4b66/urllib3-2.3.0.tar.gz", hash = "sha256:f8c5449b3cf0861679ce7e0503c7b44b5ec981bec0d1d3795a07f1ba96f0204d", size = 307268 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c8/19/4ec628951a74043532ca2cf5d97b7b14863931476d117c471e8e2b1eb39f/urllib3-2.3.0-py3-none-any.whl", hash = "sha256:1cee9ad369867bfdbbb48b7dd50374c0967a0bb7710050facf0dd6911440e3df", size = 128369 },
+]
+
+[[package]]
+name = "uvicorn"
+version = "0.34.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "h11" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4b/4d/938bd85e5bf2edeec766267a5015ad969730bb91e31b44021dfe8b22df6c/uvicorn-0.34.0.tar.gz", hash = "sha256:404051050cd7e905de2c9a7e61790943440b3416f49cb409f965d9dcd0fa73e9", size = 76568 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/14/33a3a1352cfa71812a3a21e8c9bfb83f60b0011f5e36f2b1399d51928209/uvicorn-0.34.0-py3-none-any.whl", hash = "sha256:023dc038422502fa28a09c7a30bf2b6991512da7dcdb8fd35fe57cfc154126f4", size = 62315 },
 ]
 
 [[package]]
