@@ -9,7 +9,7 @@ import inspect
 import traceback
 from typing import Any, Callable, Dict, List, Optional, TypeVar, cast
 
-from mcp_suite.servers.qa import logger
+from mcp_suite.servers.qa import LOG_FILE, logger
 
 T = TypeVar("T", bound=Callable[..., Any])
 
@@ -42,6 +42,7 @@ def exception_handler(
             "Message": "An unexpected error occurred",
             "Instructions": (
                 "Please check the logs for more details. "
+                f"{LOG_FILE}"
                 "If the issue persists, contact support."
             ),
         }
@@ -59,7 +60,7 @@ def exception_handler(
         Returns:
             The decorated function.
         """
-        logger.debug(f"Decorating function {func.__name__} with exception_handler")
+        # logger.debug(f"Decorating function {func.__name__} with exception_handler")
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -122,10 +123,10 @@ def exception_handler(
                 return default_return
 
         if inspect.iscoroutinefunction(func):
-            logger.debug(f"Function {func.__name__} is a coroutine function")
+            # logger.debug(f"Function {func.__name__} is a coroutine function")
             return cast(T, async_wrapper)
         else:
-            logger.debug(f"Function {func.__name__} is a regular function")
+            # logger.debug(f"Function {func.__name__} is a regular function")
             return cast(T, wrapper)
 
     return decorator

@@ -3,12 +3,15 @@
 import json
 from unittest.mock import mock_open, patch
 
+import pytest
+
 from mcp_suite.servers.qa.config import ReportPaths
 from mcp_suite.servers.qa.models.pytest_models import (
     PytestResults,
 )
 from mcp_suite.servers.qa.service.pytest import (
     process_pytest_results,
+    process_test_phase,
 )
 
 
@@ -174,16 +177,9 @@ class TestProcessPytestResults:
             patch("builtins.open", side_effect=FileNotFoundError()),
             patch("pathlib.Path.exists", return_value=False),
         ):
-
-            # Exercise - call the function
-            result = process_pytest_results()
-
-        # Verify - check that the result is as expected
-        assert isinstance(result, PytestResults)
-        assert "Error: File not found:" in result.error
-        assert result.summary.total == 0
-        assert len(result.failed_collections) == 0
-        assert len(result.failed_tests) == 0
+            # Exercise - call the function and expect a FileNotFoundError
+            with pytest.raises(FileNotFoundError):
+                process_pytest_results()
 
     def test_invalid_json(self):
         """Test handling of invalid JSON in the input file."""
@@ -194,16 +190,9 @@ class TestProcessPytestResults:
             patch("builtins.open", mock_file),
             patch("pathlib.Path.exists", return_value=True),
         ):
-
-            # Exercise - call the function
-            result = process_pytest_results()
-
-        # Verify - check that the result is as expected
-        assert isinstance(result, PytestResults)
-        assert "Error: Invalid JSON" in result.error
-        assert result.summary.total == 0
-        assert len(result.failed_collections) == 0
-        assert len(result.failed_tests) == 0
+            # Exercise - call the function and expect a JSONDecodeError
+            with pytest.raises(json.JSONDecodeError):
+                process_pytest_results()
 
     def test_general_exception(self):
         """Test handling of general exceptions."""
@@ -212,16 +201,9 @@ class TestProcessPytestResults:
             patch("builtins.open", side_effect=Exception("Test exception")),
             patch("pathlib.Path.exists", return_value=True),
         ):
-
-            # Exercise - call the function
-            result = process_pytest_results()
-
-        # Verify - check that the result is as expected
-        assert isinstance(result, PytestResults)
-        assert "Error processing pytest results: Test exception" in result.error
-        assert result.summary.total == 0
-        assert len(result.failed_collections) == 0
-        assert len(result.failed_tests) == 0
+            # Exercise - call the function and expect an Exception
+            with pytest.raises(Exception):
+                process_pytest_results()
 
     def test_string_path_conversion(self, tmp_path):
         """Test conversion of string paths to Path objects."""
@@ -292,17 +274,11 @@ class TestProcessPytestResults:
                 raise PermissionError("Permission denied")
 
         with patch("builtins.open", side_effect=mock_open_with_write_error):
-            # Exercise - call the function
-            result = process_pytest_results(
-                input_file, "/nonexistent/path/failed_tests.json"
-            )
-
-        # Verify - check that the result is as expected
-        assert isinstance(result, PytestResults)
-        assert result.summary.total == 0
-        assert len(result.failed_tests) == 0
-        assert len(result.failed_collections) == 0
-        # The function should still return a result even if writing fails
+            # Exercise - call the function and expect a PermissionError
+            with pytest.raises(PermissionError):
+                process_pytest_results(
+                    input_file, "/nonexistent/path/failed_tests.json"
+                )
 
     def test_process_with_collectors_dict(self):
         """Test processing results with collectors as a dictionary."""
@@ -351,3 +327,146 @@ class TestProcessPytestResults:
             result.failed_collections[0].longrepr
             == "ImportError: No module named 'missing_module'"
         )
+
+    def test_process_with_call_information(self, tmp_path):
+        """Test processing results with detailed call information."""
+        # Setup - create mock data with call information
+        mock_results = {
+            "tests": [
+                {
+                    "nodeid": "test_file.py::test_failing",
+                    "outcome": "failed",
+                    "call": {
+                        "duration": 0.0007015419996605488,
+                        "outcome": "failed",
+                        "crash": {
+                            "path": "/path/to/test_file.py",
+                            "lineno": 71,
+                            "message": "AssertionError: assert 4 == 3",
+                        },
+                        "traceback": [
+                            {
+                                "path": "src/test_file.py",
+                                "lineno": 71,
+                                "message": "AssertionError",
+                            }
+                        ],
+                        "longrepr": (
+                            "self = <test_object>\n\n"
+                            "    def test_function():\n"
+                            "        assert 4 == 3\n"
+                            "E       AssertionError: assert 4 == 3"
+                        ),
+                    },
+                    "setup": {"duration": 0.001, "outcome": "passed"},
+                    "teardown": {"duration": 0.0003, "outcome": "passed"},
+                }
+            ],
+            "summary": {
+                "total": 1,
+                "failed": 1,
+                "passed": 0,
+                "skipped": 0,
+                "errors": 0,
+                "xfailed": 0,
+                "xpassed": 0,
+                "collected": 1,
+            },
+        }
+
+        # Create temporary input and output files
+        input_file = tmp_path / "pytest_results.json"
+        output_file = tmp_path / "failed_tests.json"
+
+        with open(input_file, "w") as f:
+            json.dump(mock_results, f)
+
+        # Exercise - call the function
+        result = process_pytest_results(input_file, output_file)
+
+        # Verify - check that the result is as expected
+        assert isinstance(result, PytestResults)
+        assert result.summary.total == 1
+        assert result.summary.failed == 1
+        assert len(result.failed_tests) == 1
+
+        # Verify call information
+        failed_test = result.failed_tests[0]
+        assert failed_test.nodeid == "test_file.py::test_failing"
+        assert failed_test.outcome == "failed"
+
+        # Check call phase
+        assert failed_test.call is not None
+        assert failed_test.call.duration == 0.0007015419996605488
+        assert failed_test.call.outcome == "failed"
+
+        # Check crash info
+        assert failed_test.call.crash is not None
+        assert failed_test.call.crash.path == "/path/to/test_file.py"
+        assert failed_test.call.crash.lineno == 71
+        assert failed_test.call.crash.message == "AssertionError: assert 4 == 3"
+
+        # Check traceback
+        assert failed_test.call.traceback is not None
+        assert len(failed_test.call.traceback) == 1
+        assert failed_test.call.traceback[0].path == "src/test_file.py"
+        assert failed_test.call.traceback[0].lineno == 71
+        assert failed_test.call.traceback[0].message == "AssertionError"
+
+        # Check longrepr
+        assert "AssertionError: assert 4 == 3" in failed_test.call.longrepr
+
+        # Check setup and teardown phases
+        assert failed_test.setup is not None
+        assert failed_test.setup.duration == 0.001
+        assert failed_test.setup.outcome == "passed"
+
+        assert failed_test.teardown is not None
+        assert failed_test.teardown.duration == 0.0003
+        assert failed_test.teardown.outcome == "passed"
+
+    def test_process_test_phase_function(self):
+        """Test the process_test_phase helper function."""
+        # Test with None input
+        assert process_test_phase(None) is None
+
+        # Test with minimal input
+        minimal_phase = {"outcome": "passed", "duration": 0.001}
+        result = process_test_phase(minimal_phase)
+        assert result is not None
+        assert result.outcome == "passed"
+        assert result.duration == 0.001
+        assert result.crash is None
+        assert result.traceback is None
+
+        # Test with complete input
+        complete_phase = {
+            "duration": 0.002,
+            "outcome": "failed",
+            "crash": {
+                "path": "/path/to/file.py",
+                "lineno": 42,
+                "message": "Error message",
+            },
+            "traceback": [{"path": "src/file.py", "lineno": 42, "message": "Error"}],
+            "longrepr": "Detailed error message",
+        }
+
+        result = process_test_phase(complete_phase)
+        assert result is not None
+        assert result.outcome == "failed"
+        assert result.duration == 0.002
+        assert result.longrepr == "Detailed error message"
+
+        # Check crash info
+        assert result.crash is not None
+        assert result.crash.path == "/path/to/file.py"
+        assert result.crash.lineno == 42
+        assert result.crash.message == "Error message"
+
+        # Check traceback
+        assert result.traceback is not None
+        assert len(result.traceback) == 1
+        assert result.traceback[0].path == "src/file.py"
+        assert result.traceback[0].lineno == 42
+        assert result.traceback[0].message == "Error"

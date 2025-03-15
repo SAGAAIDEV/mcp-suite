@@ -2,15 +2,18 @@
 
 import json
 from pathlib import Path
-from typing import Union
+from typing import Any, Dict, Optional, Union
 
 from mcp_suite.servers.qa import logger
 from mcp_suite.servers.qa.config import ReportPaths
 from mcp_suite.servers.qa.models.pytest_models import (
+    PytestCallInfo,
     PytestCollectionFailure,
+    PytestCrashInfo,
     PytestFailedTest,
     PytestResults,
     PytestSummary,
+    PytestTracebackEntry,
 )
 
 
@@ -33,14 +36,15 @@ def process_pytest_results(
         json.JSONDecodeError: If the input file isn't valid JSON
         KeyError: If the input file doesn't have the expected structure
     """
-    logger.info(f"Processing pytest results from {input_file}")
-
-    # Convert string paths to Path objects if needed
-    input_path = Path(input_file) if isinstance(input_file, str) else input_file
-    output_path = Path(output_file) if isinstance(output_file, str) else output_file
-    logger.debug(f"Input path: {input_path}, Output path: {output_path}")
-
     try:
+        logger.info(f"Processing pytest results from {input_file}")
+
+        # Convert string paths to Path objects if needed
+        input_path = Path(input_file) if isinstance(input_file, str) else input_file
+        output_path = Path(output_file) if isinstance(output_file, str) else output_file
+        logger.debug(f"Input path: {input_path}, Output path: {output_path}")
+
+        # try:
         # Load the JSON file
         logger.debug(f"Loading JSON from {input_path}")
         with open(input_path, "r") as f:
@@ -88,6 +92,11 @@ def process_pytest_results(
             logger.debug("Processing test failures")
             for test in results_data["tests"]:
                 if test.get("outcome") == "failed":
+                    # Process call, setup, and teardown phases
+                    call_info = process_test_phase(test.get("call"))
+                    setup_info = process_test_phase(test.get("setup"))
+                    teardown_info = process_test_phase(test.get("teardown"))
+
                     failed_tests.append(
                         PytestFailedTest(
                             nodeid=test.get("nodeid", "Unknown"),
@@ -95,9 +104,9 @@ def process_pytest_results(
                             longrepr=test.get("longrepr", None),
                             duration=test.get("duration", None),
                             lineno=test.get("lineno", 0),
-                            setup=test.get("setup", {}),
-                            call=test.get("call", {}),
-                            teardown=test.get("teardown", {}),
+                            call=call_info,
+                            setup=setup_info,
+                            teardown=teardown_info,
                         )
                     )
             if failed_tests:
@@ -133,18 +142,64 @@ def process_pytest_results(
 
     except FileNotFoundError:
         error_msg = f"Error: File not found: {input_path}"
-        logger.error(error_msg)
-        return PytestResults(summary=PytestSummary(), error=error_msg)
+        logger.exception(error_msg)
+        raise
 
     except json.JSONDecodeError as e:
         error_msg = f"Error: Invalid JSON in {input_path}: {str(e)}"
         logger.error(error_msg)
-        return PytestResults(summary=PytestSummary(), error=error_msg)
+        raise
 
     except Exception as e:
         error_msg = f"Error processing pytest results: {str(e)}"
         logger.exception(error_msg)
-        return PytestResults(summary=PytestSummary(), error=error_msg)
+        raise
+
+
+def process_test_phase(
+    phase_data: Optional[Dict[str, Any]],
+) -> Optional[PytestCallInfo]:
+    """
+    Process a test phase (call, setup, or teardown) and extract relevant information.
+
+    Args:
+        phase_data: Dictionary containing phase data
+
+    Returns:
+        PytestCallInfo object or None if phase_data is None
+    """
+    if not phase_data:
+        return None
+
+    # Process crash information if available
+    crash_info = None
+    if crash_data := phase_data.get("crash"):
+        crash_info = PytestCrashInfo(
+            path=crash_data.get("path"),
+            lineno=crash_data.get("lineno"),
+            message=crash_data.get("message"),
+        )
+
+    # Process traceback information if available
+    traceback_entries = None
+    if traceback_data := phase_data.get("traceback"):
+        traceback_entries = [
+            PytestTracebackEntry(
+                path=entry.get("path"),
+                lineno=entry.get("lineno"),
+                message=entry.get("message"),
+            )
+            for entry in traceback_data
+        ]
+
+    # Create and return the call info object
+    return PytestCallInfo(
+        duration=phase_data.get("duration"),
+        outcome=phase_data.get("outcome", "failed"),
+        crash=crash_info,
+        traceback=traceback_entries,
+        longrepr=phase_data.get("longrepr"),
+    )
 
 
 if __name__ == "__main__":  # pragma: no cover

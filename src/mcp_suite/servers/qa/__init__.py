@@ -12,42 +12,43 @@ Components:
 - autoflake: Detect and fix unused imports and variables
 
 Logging is configured to write to a file in the logs directory.
-The log file is overwritten each time a tool runs.
+A new log file is created each time the server runs with a timestamp in the filename.
 """
 
-import sys
+import datetime
 from pathlib import Path
 
 from loguru import logger
 
 # Get the path to the logs directory
 LOGS_DIR = Path(__file__).parent / "logs"
-LOG_FILE = LOGS_DIR / "saagalint.log"
 
 # Create logs directory if it doesn't exist
 LOGS_DIR.mkdir(exist_ok=True)
+
+# Generate a timestamp for the log file
+timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+LOG_FILE = LOGS_DIR / f"saagalint_{timestamp}.log"
 
 # Remove all existing handlers
 logger.remove()
 
 # Configure logger to write to stdout with colors
-logger.add(
-    sys.stdout,
-    colorize=True,
-    format=(
-        "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
-        "<level>{level: <8}</level> | "
-        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
-        "<level>{message}</level>"
-    ),
-    level="INFO",
-)
+# logger.add(
+#     sys.stdout,
+#     colorize=False,
+#     format=(
+#         "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+#         "<level>{level: <8}</level> | "
+#         "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+#         "<level>{message}</level>"
+#     ),
+#     level="INFO",
+# )
 
-# Configure logger to write to file, overwriting existing file
+# Configure logger to write to a new file each time with timestamp in filename
 logger.add(
     LOG_FILE,
-    rotation=None,  # No rotation
-    retention=1,  # Keep only the latest file
     format=(
         "{time:YYYY-MM-DD HH:mm:ss} | "
         "{level: <8} | "
@@ -55,10 +56,10 @@ logger.add(
         "{message}"
     ),
     level="DEBUG",
-    mode="w",  # Overwrite the file each time
+    mode="w",  # Overwrite the file if it exists (shouldn't happen with timestamp)
 )
 
 logger.info(f"Logging initialized. Log file: {LOG_FILE}")
 
 # Export the logger for use in other modules
-__all__ = ["logger"]
+__all__ = ["logger", "LOG_FILE"]

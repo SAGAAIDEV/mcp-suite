@@ -54,7 +54,7 @@ async def run_flake8(
     logger.debug(f"Reports directory: {reports_dir}")
 
     # Define the output file path
-    output_file = git_root / "flake8.json"
+    output_file = git_root / "reports/flake8.json"
     logger.debug(f"Output file: {output_file}")
 
     # Delete any existing flake8.json file to prevent appending issues

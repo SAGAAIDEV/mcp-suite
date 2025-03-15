@@ -31,6 +31,38 @@ class PytestCollectionFailure(BaseModel):
     longrepr: Optional[str] = None
 
 
+class PytestCrashInfo(BaseModel):
+    """Model for pytest crash information."""
+
+    model_config = ConfigDict(extra="allow")
+
+    path: Optional[str] = None
+    lineno: Optional[int] = None
+    message: Optional[str] = None
+
+
+class PytestTracebackEntry(BaseModel):
+    """Model for a pytest traceback entry."""
+
+    model_config = ConfigDict(extra="allow")
+
+    path: Optional[str] = None
+    lineno: Optional[int] = None
+    message: Optional[str] = None
+
+
+class PytestCallInfo(BaseModel):
+    """Model for pytest call phase information."""
+
+    model_config = ConfigDict(extra="allow")
+
+    duration: Optional[float] = None
+    outcome: str = "failed"
+    crash: Optional[PytestCrashInfo] = None
+    traceback: Optional[List[PytestTracebackEntry]] = None
+    longrepr: Optional[str] = None
+
+
 class PytestFailedTest(BaseModel):
     """Model for a failed pytest test."""
 
@@ -40,6 +72,10 @@ class PytestFailedTest(BaseModel):
     outcome: str = "failed"
     longrepr: Optional[str] = None
     duration: Optional[float] = None
+    lineno: Optional[int] = None
+    call: Optional[PytestCallInfo] = None
+    setup: Optional[PytestCallInfo] = None
+    teardown: Optional[PytestCallInfo] = None
 
 
 class PytestResults(BaseModel):

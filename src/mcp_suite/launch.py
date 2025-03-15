@@ -1,7 +1,5 @@
 """Core module for MCP Suite."""
 
-import sys
-import time
 from urllib.parse import urlparse
 
 from loguru import logger
@@ -82,19 +80,3 @@ def main() -> str:
 
     #     # For normal operation, include Redis failure info
     #     return "Hello from mcp-suite! (Redis connection failed)"
-
-
-if __name__ == "__main__":  # pragma: no cover
-    try:
-        result = main()
-        print(result)
-
-        # If this is an interactive session, keep running until user interrupts
-        if sys.stdout.isatty():
-            logger.info("Press Ctrl+C to exit and terminate Redis server")
-            while True:
-                time.sleep(1)
-    except KeyboardInterrupt:
-        logger.info("Received keyboard interrupt, shutting down")
-    finally:
-        logger.info("Cleanup will be handled by atexit handler")
