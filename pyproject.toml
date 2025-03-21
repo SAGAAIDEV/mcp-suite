@@ -17,6 +17,8 @@ dependencies = [
     "hatchling>=1.27.0",
     "ipykernel>=6.29.5",
     "langchain-anthropic>=0.3.9",
+    "langchain-community>=0.3.19",
+    "langchain-experimental>=0.3.4",
     "langchain-mcp-adapters>=0.0.4",
     "langgraph>=0.3.5",
     "langgraph-cli>=0.1.77",
@@ -28,11 +30,13 @@ dependencies = [
     "opencv-python>=4.11.0.86",
     "pyautogui>=0.9.54",
     "pydantic-redis>=0.7.0",
+    "pylint>=3.3.5",
     "pytest-asyncio>=0.25.3",
     "pytest-json-report>=1.5.0",
     "python-dotenv>=1.0.1",
     "redis>=5.2.1",
     "watchfiles>=1.0.4",
+    "wonderwords>=2.2.0",
 ]
 
 [project.optional-dependencies]
@@ -57,7 +61,7 @@ python_functions = "test_*"
 python_classes = "Test*"
 
 [tool.coverage.run]
-source = ["src"]
+source = ["src/mcp_suite"]
 omit = [
     "tests/*",
     "**/tests/**",

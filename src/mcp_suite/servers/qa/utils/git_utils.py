@@ -2,10 +2,7 @@
 
 from pathlib import Path
 
-from mcp_suite.servers.qa import logger
-
-# Bind the component field to the logger
-logger = logger.bind(component="git_utils")
+# Bind component to logger
 
 
 def get_git_root():
@@ -18,7 +15,7 @@ def get_git_root():
     Raises:
         FileNotFoundError: If the git root directory cannot be found.
     """
-    logger.debug("Finding git root directory")
+
     current_dir = Path(__file__).resolve().parent
     git_root = None
 
@@ -27,13 +24,13 @@ def get_git_root():
     while check_dir != check_dir.parent:
         if (check_dir / ".git").exists():
             git_root = check_dir
-            logger.debug(f"Git root found at: {git_root}")
+
             break
         check_dir = check_dir.parent
 
     if git_root is None:
         error_msg = "Git repository root not found"
-        logger.error(error_msg)
+
         raise FileNotFoundError(error_msg)
 
     return git_root

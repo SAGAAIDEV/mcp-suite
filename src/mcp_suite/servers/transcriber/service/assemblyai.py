@@ -8,9 +8,10 @@ Dependencies:
     - dotenv: For environment variable loading
 """
 
+import logging
+
 import assemblyai as aai
 from dotenv import load_dotenv
-from loguru import logger
 
 from src.config.env import ASSEMBLYAI
 
@@ -19,6 +20,9 @@ from ..utils.file_utils import get_file_info, validate_audio_file
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Configure logger
+logger = logging.getLogger(__name__)
 
 
 class AssemblyAIService:
@@ -32,7 +36,6 @@ class AssemblyAIService:
 
         # Initialize AssemblyAI with API key
         aai.settings.api_key = api_key
-        logger.info("TranscriberService initialized")
 
     def transcribe_audio(
         self, audio_path: str, language_code: str = DEFAULT_LANGUAGE
@@ -52,14 +55,10 @@ class AssemblyAIService:
             return error_message
 
         # Get file info for logging
-        file_info = get_file_info(audio_path)
+        get_file_info(audio_path)
 
         # Validate language code
         if language_code not in SUPPORTED_LANGUAGES:
-            logger.warning(
-                f"Unsupported language code: {language_code}. "
-                f"Using default: {DEFAULT_LANGUAGE}"
-            )
             language_code = DEFAULT_LANGUAGE
 
         # Create transcription config
@@ -68,15 +67,9 @@ class AssemblyAIService:
 
         try:
             # Transcribe the file
-            logger.info(
-                f"Transcribing audio file: {file_info['name']} "
-                f"({file_info['size_human']}, "
-                f"Language: {SUPPORTED_LANGUAGES[language_code]})"
-            )
             transcript = transcriber.transcribe(audio_path)
             return transcript.text
 
         except Exception as e:
             error_msg = f"Error transcribing file: {str(e)}"
-            logger.error(error_msg)
             return error_msg

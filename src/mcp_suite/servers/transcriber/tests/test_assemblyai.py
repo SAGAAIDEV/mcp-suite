@@ -73,20 +73,16 @@ class TestAssemblyAIService:
         self, mock_env, mock_transcriber, test_audio_file
     ):
         """Test transcription with an unsupported language code."""
-        with patch(
-            "src.mcp_suite.servers.transcriber.service.assemblyai.logger"
-        ) as mock_logger:
-            service = AssemblyAIService()
-            result = service.transcribe_audio(
-                test_audio_file, "xx"
-            )  # Invalid language code
+        service = AssemblyAIService()
+        result = service.transcribe_audio(
+            test_audio_file, "xx"
+        )  # Invalid language code
 
-            # Check that a warning was logged
-            mock_logger.warning.assert_called_once()
-            assert "Unsupported language code" in mock_logger.warning.call_args[0][0]
+        # Verify that the transcription was still successful
+        assert result == "This is a test transcription."
 
-            # Check that the default language was used
-            assert result == "This is a test transcription."
+        # Verify that the transcriber was called with the default language
+        mock_transcriber.transcribe.assert_called_once_with(test_audio_file)
 
     def test_transcribe_audio_exception(self, mock_env, test_audio_file):
         """Test transcription with an exception during transcription."""
@@ -99,15 +95,9 @@ class TestAssemblyAIService:
                 "Test exception"
             )
 
-            with patch(
-                "src.mcp_suite.servers.transcriber.service.assemblyai.logger"
-            ) as mock_logger:
-                service = AssemblyAIService()
-                result = service.transcribe_audio(test_audio_file)
+            service = AssemblyAIService()
+            result = service.transcribe_audio(test_audio_file)
 
-                # Check that an error was logged
-                mock_logger.error.assert_called_once()
-
-                # Check the result contains the error message
-                assert "Error transcribing file" in result
-                assert "Test exception" in result
+            # Check the result contains the error message
+            assert "Error transcribing file" in result
+            assert "Test exception" in result

@@ -11,7 +11,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mcp_suite.servers.qa.utils.decorators import exception_handler
+from mcp_suite.servers.qa.models.tool_result import ToolResult, ToolStatus
+from mcp_suite.servers.qa.utils.decorators import (
+    exception_handler,
+    tool_flow,
+)
 
 
 class TestExceptionHandler:
@@ -253,3 +257,156 @@ class TestExceptionHandler:
         assert result["Status"] == "Error"
         assert "Message" in result
         assert "Instructions" in result
+
+
+class TestStatusMessageHandler:
+    """Tests for the status_message_handler decorator."""
+
+    def test_success_message(self):
+        """Test that success messages are appended correctly."""
+
+        @tool_flow(success_message="Success message")
+        def test_func():
+            return ToolResult(status=ToolStatus.SUCCESS, message="Base message")
+
+        result = test_func()
+        assert result.message == "Base message\nSuccess message"
+
+    def test_error_message(self):
+        """Test that error messages are appended correctly."""
+
+        @tool_flow(error_message="Error message")
+        def test_func():
+            return ToolResult(status=ToolStatus.ERROR, message="Base message")
+
+        result = test_func()
+        assert result.message == "Base message\nError message"
+
+    def test_continue_message(self):
+        """Test that continue messages are appended correctly."""
+
+        @tool_flow(continue_message="Continue message")
+        def test_func():
+            return ToolResult(status=ToolStatus.CONTINUE, message="Base message")
+
+        result = test_func()
+        assert result.message == "Base message\nContinue message"
+
+    def test_failure_message(self):
+        """Test that failure messages are appended correctly."""
+
+        @tool_flow(failure_message="Failure message")
+        def test_func():
+            return ToolResult(status=ToolStatus.FAILURE, message="Base message")
+
+        result = test_func()
+        assert result.message == "Base message\nFailure message"
+
+    def test_exception_message(self):
+        """Test that exception messages are appended correctly."""
+
+        @tool_flow(exception_message="Exception message")
+        def test_func():
+            return ToolResult(status=ToolStatus.EXCEPTION, message="Base message")
+
+        result = test_func()
+        assert result.message == "Base message\nException message"
+
+    def test_no_message_for_status(self):
+        """Test that no message is appended if none is provided for the status."""
+
+        @tool_flow(success_message="Success message")
+        def test_func():
+            return ToolResult(status=ToolStatus.ERROR, message="Base message")
+
+        result = test_func()
+        assert result.message == "Base message"
+
+    def test_non_toolresult_return(self):
+        """Test that non-ToolResult returns are not modified."""
+
+        @tool_flow(success_message="Success message")
+        def test_func():
+            return "Not a ToolResult"
+
+        result = test_func()
+        assert result == "Not a ToolResult"
+
+    @pytest.mark.asyncio
+    async def test_async_function(self):
+        """Test that async functions work correctly with the decorator."""
+
+        @tool_flow(success_message="Success message")
+        async def test_func():
+            return ToolResult(status=ToolStatus.SUCCESS, message="Base message")
+
+        result = await test_func()
+        assert result.message == "Base message\nSuccess message"
+
+    @pytest.mark.asyncio
+    async def test_async_function_error(self):
+        """Test ERROR status - async functions append error messages."""
+
+        @tool_flow(error_message="Error message")
+        async def test_func():
+            return ToolResult(status=ToolStatus.ERROR, message="Base message")
+
+        result = await test_func()
+        assert result.message == "Base message\nError message"
+
+    @pytest.mark.asyncio
+    async def test_async_function_continue(self):
+        """Test CONTINUE status - async functions append continue messages."""
+
+        @tool_flow(continue_message="Continue message")
+        async def test_func():
+            return ToolResult(status=ToolStatus.CONTINUE, message="Base message")
+
+        result = await test_func()
+        assert result.message == "Base message\nContinue message"
+
+    @pytest.mark.asyncio
+    async def test_async_function_failure(self):
+        """Test FAILURE status - async functions append failure messages."""
+
+        @tool_flow(failure_message="Failure message")
+        async def test_func():
+            return ToolResult(status=ToolStatus.FAILURE, message="Base message")
+
+        result = await test_func()
+        assert result.message == "Base message\nFailure message"
+
+    @pytest.mark.asyncio
+    async def test_async_function_exception(self):
+        """Test EXCEPTION status - async functions append exception messages."""
+
+        @tool_flow(exception_message="Exception message")
+        async def test_func():
+            return ToolResult(status=ToolStatus.EXCEPTION, message="Base message")
+
+        result = await test_func()
+        assert result.message == "Base message\nException message"
+
+    @pytest.mark.asyncio
+    async def test_async_non_toolresult_return(self):
+        """Test that async functions returning non-ToolResult values are not modified."""
+
+        @tool_flow(success_message="Success message")
+        async def test_func():
+            return "Not a ToolResult"
+
+        result = await test_func()
+        assert result == "Not a ToolResult"
+
+    @pytest.mark.asyncio
+    async def test_async_no_message_for_status(self):
+        """Test that no message is appended to async functions if none is provided for
+        the status.
+        """
+
+        @tool_flow(success_message="Success message")
+        async def test_func():
+            return ToolResult(status=ToolStatus.ERROR, message="Base message")
+
+        result = await test_func()
+        assert result.message == "Base message"

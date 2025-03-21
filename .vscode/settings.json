@@ -1,5 +1,10 @@
 {
   "python.testing.pytestArgs": ["."],
   "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
+  "python.testing.pytestEnabled": true,
+  "files.exclude": {
+    "**/.venv": true,
+    "**/.mypy_cache": true
+  },
+  "folder-color.pathColors": []
 }

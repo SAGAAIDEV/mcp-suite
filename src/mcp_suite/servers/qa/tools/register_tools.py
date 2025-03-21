@@ -14,10 +14,22 @@ Available tools:
 
 from mcp.server.fastmcp import FastMCP
 
-from mcp_suite.servers.qa.tools.autoflake_tool import run_autoflake
-from mcp_suite.servers.qa.tools.coverage_tool import run_coverage
-from mcp_suite.servers.qa.tools.flake8_tool import run_flake8
-from mcp_suite.servers.qa.tools.pytest_tool import run_pytest
+from mcp_suite.servers.qa.config.tools import (
+    clear_logs,
+    get_current_log_file,
+    read_log,
+)
+from mcp_suite.servers.qa.tools.formatter.formatter_tool import formatter
+from mcp_suite.servers.qa.tools.linter.flake8_report import flake8_report
+from mcp_suite.servers.qa.tools.linter.pylint_tool import pylint_report
+from mcp_suite.servers.qa.tools.testing.coverage_report import (
+    run_coverage,
+)
+from mcp_suite.servers.qa.tools.testing.pytest_report import generate_test_reports
+from mcp_suite.servers.qa.tools.testing.utils.make_test import (
+    create_test_file,
+    source_to_test_path,
+)
 
 # Remove logger imports and initialization
 # from mcp_suite.servers.qa import logger
@@ -36,14 +48,27 @@ def register_tools(mcp: FastMCP) -> None:
     Args:
         mcp: The MCP server instance
     """
+    # Register formatter tool
+    mcp.tool()(formatter)
+
+    # Run flake8 report
+    mcp.tool()(flake8_report)
+
     # Register pytest tool
-    mcp.tool()(run_pytest)
+    mcp.tool()(generate_test_reports)
+    mcp.tool()(create_test_file)
+    mcp.tool()(source_to_test_path)
+
+    # # Register coverage tool
+    # mcp.tool()(next_coverage_issue)
 
     # Register coverage tool
     mcp.tool()(run_coverage)
 
-    # Register autoflake tool
-    mcp.tool()(run_autoflake)
+    # Register pylint tool
+    mcp.tool()(pylint_report)
 
-    # Register flake8 tool
-    mcp.tool()(run_flake8)
+    # Register logging tools
+    mcp.tool()(read_log)
+    mcp.tool()(clear_logs)
+    mcp.tool()(get_current_log_file)

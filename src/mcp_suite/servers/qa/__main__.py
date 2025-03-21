@@ -24,28 +24,55 @@ Usage:
 """
 
 import datetime
+import sys
+import traceback
 
-import fire
 from mcp.server.fastmcp import FastMCP
-
-# Import logger and tool registration function
-from mcp_suite.servers.qa import logger
-from mcp_suite.servers.qa.tools.register_tools import register_tools
 
 # Store server start time
 SERVER_START_TIME = datetime.datetime.now().isoformat()
-logger.info(f"Server starting at {SERVER_START_TIME}")
 
-# Create the MCP server instance
-mcp = FastMCP("precommit", settings={"host": "localhost", "port": 8081, "reload": True})
-logger.info("MCP server instance created")
+try:
+    # Import logger and tool registration function
+    from mcp_suite.servers.qa.config import logger
 
-# Register all tools
-register_tools(mcp)
-logger.info("All tools registered")
+    logger.info(f"Server starting at {SERVER_START_TIME}")
+    from mcp_suite.servers.qa.tools.register_tools import register_tools
+
+    # Create the MCP server instance
+    mcp = FastMCP(
+        "precommit", settings={"host": "localhost", "port": 8081, "reload": True}
+    )
+    logger.info("MCP server instance created")
+
+    # Register all tools
+    register_tools(mcp)
+    logger.info("All tools registered")
+except ModuleNotFoundError as e:
+    # Handle import errors specifically
+    error_msg = f"Import error: {e}\n{traceback.format_exc()}"
+    try:
+        # Try to use logger if available
+        from mcp_suite.servers.qa.config import logger
+
+        logger.error(error_msg)
+    except ImportError:
+        # Fallback to printing to stderr if logger import also fails
+        print(error_msg, file=sys.stderr)
+    sys.exit(1)
+except Exception as e:
+    # Handle other exceptions
+    error_msg = f"Initialization error: {e}\n{traceback.format_exc()}"
+    try:
+        from mcp_suite.servers.qa.config import logger
+
+        logger.error(error_msg)
+    except ImportError:
+        print(error_msg, file=sys.stderr)
+    sys.exit(1)
 
 
-def run_server(transport="stdio", host="localhost", port=8081, debug=False):
+def run_server(transport="stdio", host="localhost", port=8081, debug=True):
     """
     Run the SaagaLint MCP server with the specified transport.
 
@@ -85,4 +112,4 @@ def run_server(transport="stdio", host="localhost", port=8081, debug=False):
 if __name__ == "__main__":  # pragma: no cover
     # Use Fire to provide a CLI interface
     logger.info("Starting CLI interface with Fire")
-    fire.Fire(run_server)
+    run_server()

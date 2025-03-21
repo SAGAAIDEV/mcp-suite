@@ -80,10 +80,6 @@ The Midjourney MCP (Machine Control Protocol) server is a specialized service de
    - Manages environment variable integration
    - Provides configuration API for UI
 
-5. **Web UI**
-   - Configuration dashboard
-   - Image browsing and management
-   - System monitoring and logs
 
 ### Data Flow
 
@@ -103,12 +99,8 @@ The Midjourney MCP (Machine Control Protocol) server is a specialized service de
    - Asynchronous request handling for performance
    - SQLite or PostgreSQL for metadata storage
 
-2. **Frontend**
-   - Modern web framework (React, Vue, or Svelte)
-   - Responsive design for various device sizes
-   - Minimal dependencies for easy deployment
 
-3. **Deployment**
+2. **Deployment**
    - Docker containerization
    - Environment-based configuration
    - CI/CD pipeline for testing and deployment

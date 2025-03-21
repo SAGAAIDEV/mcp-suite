@@ -13,6 +13,3 @@ def pytest_configure(config):
 
     # Set the default fixture loop scope to function
     config.option.asyncio_default_fixture_loop_scope = "function"
-
-    # Filter pydantic warnings
-    config.addinivalue_line("filterwarnings", "ignore::DeprecationWarning:pydantic")

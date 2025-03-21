@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any
 
 # Import logging configuration
-from mcp_suite.servers.qa import logger
+from mcp_suite.servers.qa.config import logger
 
 # Bind the component field to the logger
 logger = logger.bind(component="module_utils")

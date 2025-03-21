@@ -1,0 +1,32 @@
+repos:
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: pytest-check
+        entry: bash -c 'cd $(git rev-parse --show-toplevel) &&  uv run pytest . --cov=src/ --cov-report=term-missing --cov-fail-under=100 -v'
+        language: system
+        pass_filenames: false
+        always_run: true
+        verbose: true
+        stages: [pre-commit]
+
+      - id: black
+        name: black
+        entry: uv run python -m black
+        language: system
+        types: [python]
+        exclude: \.venv/|cookiecutter-mcp/
+
+      - id: isort
+        name: isort
+        entry: uv run python -m isort
+        language: system
+        types: [python]
+        exclude: \.venv/|cookiecutter-mcp/
+
+      - id: flake8
+        name: flake8
+        entry: uv run python -m flake8 --max-line-length=99 --ignore=E203,W503
+        language: system
+        types: [python]
+        exclude: \.venv/|cookiecutter-mcp/

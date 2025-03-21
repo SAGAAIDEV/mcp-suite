@@ -36,7 +36,10 @@ class TestSetupDirectories:
 
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.mkdir")
-    def test_creates_directories_when_not_exist(self, mock_mkdir, mock_exists):
+    @patch("mcp_suite.base.redis.utils.logger")
+    def test_creates_directories_when_not_exist(
+        self, mock_logger, mock_mkdir, mock_exists
+    ):
         """Test that directories are created when they don't exist."""
         # Setup
         mock_exists.return_value = False
@@ -49,10 +52,19 @@ class TestSetupDirectories:
         mock_mkdir.assert_has_calls(
             [call(parents=True, exist_ok=True), call(parents=True, exist_ok=True)]
         )
+        # Verify logger.info was called for each directory creation
+        assert mock_logger.info.call_count == 2
+        mock_logger.info.assert_any_call(f"Created logs directory at {utils.logs_dir}")
+        mock_logger.info.assert_any_call(
+            f"Created Redis database directory at {utils.db_dir}"
+        )
 
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.mkdir")
-    def test_skips_directory_creation_when_exist(self, mock_mkdir, mock_exists):
+    @patch("mcp_suite.base.redis.utils.logger")
+    def test_skips_directory_creation_when_exist(
+        self, mock_logger, mock_mkdir, mock_exists
+    ):
         """Test that directories are not created when they already exist."""
         # Setup
         mock_exists.return_value = True
@@ -62,12 +74,15 @@ class TestSetupDirectories:
 
         # Assert
         mock_mkdir.assert_not_called()
+        # No logger calls should be made for existing directories
+        mock_logger.info.assert_not_called()
 
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.mkdir")
     @patch("pathlib.Path.home")
+    @patch("mcp_suite.base.redis.utils.logger")
     def test_fallback_on_permission_error_logs(
-        self, mock_home, mock_mkdir, mock_exists
+        self, mock_logger, mock_home, mock_mkdir, mock_exists
     ):
         """Test fallback to home directory when permission error occurs for logs."""
         # Setup
@@ -84,10 +99,23 @@ class TestSetupDirectories:
         assert mock_mkdir.call_count >= 2
         assert utils.logs_dir == Path("/mock/home/logs")
 
+        # Verify warning log was called for logs directory fallback
+        mock_logger.warning.assert_any_call(
+            f"Using fallback logs directory at {utils.logs_dir} due to permission error"
+        )
+
+        # Verify info log was called for db directory creation
+        mock_logger.info.assert_called_once_with(
+            f"Created Redis database directory at {utils.db_dir}"
+        )
+
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.mkdir")
     @patch("pathlib.Path.home")
-    def test_fallback_on_permission_error_db(self, mock_home, mock_mkdir, mock_exists):
+    @patch("mcp_suite.base.redis.utils.logger")
+    def test_fallback_on_permission_error_db(
+        self, mock_logger, mock_home, mock_mkdir, mock_exists
+    ):
         """Test fallback to home directory when permission error occurs for db."""
         # Setup
         mock_exists.return_value = False
@@ -102,6 +130,50 @@ class TestSetupDirectories:
         # Assert
         assert mock_mkdir.call_count >= 3
         assert utils.db_dir == Path("/mock/home/db")
+
+        # Verify info log was called for logs directory creation
+        mock_logger.info.assert_called_once_with(
+            f"Created logs directory at {utils.logs_dir}"
+        )
+
+        # Verify warning log was called for db directory fallback
+        mock_logger.warning.assert_called_once_with(
+            f"Using fallback Redis database directory at {utils.db_dir} "
+            f"due to permission error"
+        )
+
+    @patch("pathlib.Path.exists")
+    @patch("pathlib.Path.mkdir")
+    @patch("pathlib.Path.home")
+    @patch("mcp_suite.base.redis.utils.logger")
+    def test_both_permission_errors(
+        self, mock_logger, mock_home, mock_mkdir, mock_exists
+    ):
+        """Test when permission errors occur for both logs and db directories."""
+        # Setup
+        mock_exists.return_value = False
+        mock_home.return_value = Path("/mock/home")
+
+        # Make both mkdir calls raise PermissionError for original directories
+        mock_mkdir.side_effect = [PermissionError, None, PermissionError, None]
+
+        # Execute
+        utils.setup_directories()
+
+        # Assert
+        assert mock_mkdir.call_count >= 4
+        assert utils.logs_dir == Path("/mock/home/logs")
+        assert utils.db_dir == Path("/mock/home/db")
+
+        # Verify both warning logs were called
+        assert mock_logger.warning.call_count == 2
+        mock_logger.warning.assert_any_call(
+            f"Using fallback logs directory at {utils.logs_dir} due to permission error"
+        )
+        mock_logger.warning.assert_any_call(
+            f"Using fallback Redis database directory at {utils.db_dir} "
+            f"due to permission error"
+        )
 
 
 class TestConfigureLogger:

@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+When asked to format a file. call the mcp tool formatter from the mcp server saagalint.

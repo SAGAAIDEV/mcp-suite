@@ -1,22 +1,25 @@
 ---
-description: when implementing a feature
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
-Read the documentation of any library you are using.
+Remember to add the `# pragma: no cover` comment for `if __name__ == "__main__"` blocks:
 
-Implement one feature
+```python
+if __name__ == "__main__":  # pragma: no cover
+    # Code that runs when the file is executed directly
+    pass
+```
 
-Test it
+when you see 'next_action' in a mcp tool call result,
 
-Run the Tests
+call the tool that is specified in it's mcp_tool
+and follow the instructions.
+If they are general assume, you are using the relevant arguments for the next tool from your previous conversation.
 
-Fix errors
+If a tool fails.
+'status': <ToolStatus.FAILURE: 'Failure'>
+ Make sure you assess the error, fix it, before you run the tool.
 
-Run the Tests
-
-Fix the warnings
-
-Run Coverage
-
-Run Pre commit hook
+ Never run pytest via the cmp line, use the mcp tool run_pytest if you
+ have to run a test.
